@@ -1,0 +1,1 @@
+-- Consolidated into hyprland/execs.lua

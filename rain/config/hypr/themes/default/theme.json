@@ -1,0 +1,10 @@
+{
+  "name": "Rain Default",
+  "blurb": "The look and motion Raindots ships with. Warm, clean, wallpaper-driven.",
+  "summary": "Shipped look · wallpaper colours",
+  "tags": ["default", "warm", "clean"],
+  "accent": "#e0563b",
+  "swatch": ["#1a1410", "#e0563b", "#ff7a45", "#f0a868", "#c4411d", "#e8ddd4"],
+  "hasPalette": false,
+  "look": {}
+}

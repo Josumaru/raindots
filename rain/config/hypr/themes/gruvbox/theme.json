@@ -1,0 +1,17 @@
+{
+  "name": "Gruvbox",
+  "blurb": "Retro earth tones. Warm amber and faded greens.",
+  "summary": "Warm · rounded · cozy",
+  "tags": ["warm", "rounded", "retro"],
+  "accent": "#d79921",
+  "swatch": ["#282828", "#d79921", "#b8bb26", "#83a598", "#fb4934", "#fe8019"],
+  "hasPalette": false,
+  "look": {
+    "rounding": 8,
+    "gapsIn": 8,
+    "gapsOut": 16,
+    "borderSize": 1,
+    "activeOpacity": 0.98,
+    "inactiveOpacity": 0.9
+  }
+}

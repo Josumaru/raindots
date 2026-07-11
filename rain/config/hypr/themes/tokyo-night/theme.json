@@ -1,0 +1,17 @@
+{
+  "name": "Tokyo Night",
+  "blurb": "Deep blue-purple night palette.",
+  "summary": "Sharp corners · snappy motion · cool palette",
+  "tags": ["sharp", "cool", "snappy"],
+  "accent": "#7aa2f7",
+  "swatch": ["#1a1b26", "#7aa2f7", "#bb9af7", "#9ece6a", "#f7768e", "#e0af68"],
+  "hasPalette": false,
+  "look": {
+    "rounding": 3,
+    "gapsIn": 6,
+    "gapsOut": 14,
+    "borderSize": 2,
+    "activeOpacity": 1.0,
+    "inactiveOpacity": 0.94
+  }
+}

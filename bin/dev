@@ -1,0 +1,128 @@
+#!/usr/bin/env zsh
+set -euo pipefail
+
+RAIN_HOME="${0:A:h:h}"
+CONFIG_DIR="$RAIN_HOME/rain/config"
+CONFIG_TARGET="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+R='\033[0;31m'; G='\033[0;32m'; Y='\033[0;33m'; B='\033[0;34m'; N='\033[0m'
+info()  { echo -e "${B}::${N} $*"; }
+ok()    { echo -e "${G}==>${N} $*"; }
+warn()  { echo -e "${Y}==>${N} $*" >&2; }
+err()   { echo -e "${R}ERROR:${N} $*" >&2; }
+
+ensure_symlinks() {
+    local ok=true
+    for dir in hypr quickshell; do
+        local target="$CONFIG_TARGET/$dir"
+        local expected="$CONFIG_DIR/$dir"
+        if [[ -L $target ]]; then
+            local actual="$(readlink -f "$target")"
+            if [[ "$actual" != "$expected" ]]; then
+                warn "Wrong symlink: $target -> $actual" 
+                ok=false
+            fi
+        elif [[ -d $target ]]; then
+            warn "$target is a real directory, not a symlink"
+            ok=false
+        else
+            warn "$target does not exist (run: bin/dev up)"
+            ok=false
+        fi
+    done
+    $ok || { err "Fix with: $RAIN_HOME/install.sh"; exit 1; }
+}
+
+cmd_up() {
+    "$RAIN_HOME/install.sh"
+    # Rebuild rain CLI
+    if command -v go &>/dev/null; then
+        "$RAIN_HOME/rain/cli/build.sh"
+    fi
+}
+
+cmd_check() {
+    local all_ok=true
+    for dir in hypr quickshell; do
+        local target="$CONFIG_TARGET/$dir"
+        local expected="$CONFIG_DIR/$dir"
+        if [[ -L $target ]]; then
+            local actual="$(readlink -f "$target")"
+            if [[ "$actual" == "$expected" ]]; then
+                ok "${G}✓${N} $target -> $actual"
+            else
+                warn "${Y}⚠${N} $target -> $actual (expected $expected)"
+                all_ok=false
+            fi
+        elif [[ -d $target ]]; then
+            warn "${Y}⚠${N} $target is a real directory (not a symlink)"
+            all_ok=false
+        else
+            warn "${Y}✗${N} $target does not exist"
+            all_ok=false
+        fi
+    done
+    $all_ok && ok "All symlinks OK" || warn "Run: bin/dev up"
+}
+
+cmd_hyprland() {
+    ensure_symlinks
+    local config="$CONFIG_TARGET/hypr/hyprland.lua"
+    [[ -f $config ]] || { err "Config not found: $config"; exit 1; }
+    info "Hyprland config: $config"
+    Hyprland --config "$config" "$@"
+}
+
+cmd_shell() {
+    ensure_symlinks
+    local name="${1:-rain}"
+    local shell_qml="$CONFIG_DIR/quickshell/$name/shell.qml"
+    [[ -f $shell_qml ]] || { err "Shell not found: $shell_qml"; exit 1; }
+    shift 2>/dev/null || true
+    info "Quickshell config: $shell_qml"
+    quickshell --path "$shell_qml" "$@"
+}
+
+cmd_logs() {
+    case "${1:--f}" in
+        -f|--follow)  shift; quickshell log -vv --log-times --follow "$@" ;;
+        --clear|-c)   shift; quickshell log --clear "$@" ;;
+        *)            quickshell log "$@" ;;
+    esac
+}
+
+cmd_kill() {
+    quickshell kill
+}
+
+case "${1:-help}" in
+    up|stow|install)    shift; cmd_up "$@" ;;
+    check|status)       shift; cmd_check "$@" ;;
+    hyprland|hl)        shift; cmd_hyprland "$@" ;;
+    shell|qs)           shift; cmd_shell "$@" ;;
+    rain|cli)           shift; "$RAIN_HOME/rain/bin/rain" "$@" ;;
+    logs|log)           shift; cmd_logs "$@" ;;
+    kill)               shift; cmd_kill "$@" ;;
+    help|--help|-h)
+        echo -e "${B}raindots dev — Development workflow${N}\n"
+        echo "  ${G}Commands:${N}"
+        echo "  up              Symlink all configs to ~/.config/"
+        echo "  check           Verify symlink status"
+        echo "  hyprland [opts] Launch Hyprland (passes extra args)"
+        echo "  shell [name]    Launch quickshell [rain]"
+        echo "  logs [-f]       View/Follow quickshell logs"
+        echo "  kill            Kill quickshell instances"
+        echo ""
+        echo "  ${Y}Examples:${N}"
+        echo "  bin/dev up                             # (re)create symlinks"
+        echo "  bin/dev check                          # verify symlinks"
+        echo "  bin/dev hyprland --safe-mode           # launch Hyprland safe"
+  echo "  bin/dev shell                          # launch quickshell rain"
+  echo "  bin/dev shell rain -vv --debug 9999    # with verbose + debugger"
+        echo "  bin/dev logs -f                        # follow quickshell logs"
+        ;;
+    *)
+        err "Unknown: $1. Try: bin/dev help"
+        exit 1
+        ;;
+esac

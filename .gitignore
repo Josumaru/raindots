@@ -1,0 +1,8 @@
+.claude
+.agents
+.ruff_cache
+references
+
+# Go build artifacts
+rain/cli/rain
+rain/bin/rain

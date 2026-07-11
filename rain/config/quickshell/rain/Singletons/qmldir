@@ -1,0 +1,10 @@
+singleton Config Config.qml
+singleton Theme Theme.qml
+singleton Wallust Wallust.qml
+singleton Motion Motion.qml
+singleton Media Media.qml
+singleton Notifs Notifs.qml
+singleton Flags Flags.qml
+singleton Events Events.qml
+singleton Battery Battery.qml
+singleton Directories Directories.qml

@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Conventional Commits 1.0.0 — commit-msg hook
+# Validates commit messages against the spec.
+
+COMMIT_MSG_FILE="$1"
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+# Strip comments (lines starting with #)
+COMMIT_MSG=$(echo "$COMMIT_MSG" | sed '/^#/d')
+
+# Extract the first line (subject)
+SUBJECT=$(echo "$COMMIT_MSG" | head -n1)
+
+# Regex for the subject line:
+#   ^(<type>)(\(<scope>\))?(!)?: <description>$
+#
+# Allowed types (based on @commitlint/config-conventional):
+#   feat, fix, build, chore, ci, docs, perf, refactor, style, test, revert
+#
+PATTERN='^(feat|fix|build|chore|ci|docs|perf|refactor|style|test|revert)(\([a-zA-Z0-9_.-]+\))?(!)?: .+$'
+
+if ! echo "$SUBJECT" | grep -qE "$PATTERN"; then
+    echo "ERROR: Commit message does not follow Conventional Commits 1.0.0:" >&2
+    echo "" >&2
+    echo "  <type>[optional scope][!]: <description>" >&2
+    echo "" >&2
+    echo "Allowed types: feat, fix, build, chore, ci, docs, perf, refactor, style, test, revert" >&2
+    echo "" >&2
+    echo "Examples:" >&2
+    echo "  feat: add new feature" >&2
+    echo "  fix(parser): handle edge case" >&2
+    echo "  feat(api)!: breaking change" >&2
+    echo "  docs: update README" >&2
+    echo "" >&2
+    echo "Got:" >&2
+    echo "  $SUBJECT" >&2
+    exit 1
+fi
+
+# Validate BREAKING CHANGE footer if present
+BODY=$(echo "$COMMIT_MSG" | tail -n +2)
+if echo "$BODY" | grep -qi "^BREAKING[ -]CHANGE:"; then
+    # Valid — BREAKING CHANGE in footer is allowed regardless of subject
+    :
+fi
+
+# Check description is not empty after the colon+space
+TYPE_SCOPE=$(echo "$SUBJECT" | sed -E 's/^([a-z]+(\([^)]+\))?!?): .*$/\1/')
+DESCRIPTION=$(echo "$SUBJECT" | sed -E 's/^[a-z]+(\([^)]+\))?!?: (.*)$/\2/')
+if [ -z "$DESCRIPTION" ]; then
+    echo "ERROR: Commit description cannot be empty." >&2
+    exit 1
+fi
+
+# Check if the description starts with a lowercase letter (convention, not spec)
+FIRST_CHAR=$(echo "$DESCRIPTION" | cut -c1)
+if echo "$FIRST_CHAR" | grep -qE '[A-Z]'; then
+    echo "ERROR: Description should start with a lowercase letter." >&2
+    echo "  Got: '$FIRST_CHAR' in '$DESCRIPTION'" >&2
+    exit 1
+fi
+
+exit 0
