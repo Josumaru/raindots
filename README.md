@@ -83,12 +83,12 @@ raindots/
 
 ```bash
 # Local clone
-git clone https://github.com/yourusername/raindots.git
+git clone https://github.com/josumaru/raindots.git
 cd raindots
 ./install.sh
 
 # Or via curl (no manual clone needed)
-curl -fsSL https://raw.githubusercontent.com/yourusername/raindots/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/josumaru/raindots/main/install.sh | bash
 ```
 
 This creates symlinks:
