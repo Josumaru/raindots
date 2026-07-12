@@ -30,7 +30,7 @@ Slider {
     property color dotColorHighlighted: Appearance.m3colors.m3onPrimary
     property real unsharpenRadius: 0
     property real trackWidth: configuration
-    property real trackRadius: 0
+    property real trackRadius: configuration / 2
     property real handleHeight: (configuration === root.wavyConfig) ? 24 : Math.max(24, trackWidth + 6)
     property real handleWidth: root.pressed ? handlePressedWidth : handleDefaultWidth
     property real handleMargins: 4
@@ -69,7 +69,7 @@ Slider {
         x: root.handleMargins + (normalizedValue * root.effectiveDraggingWidth) - (root.trackDotSize / 2)
         width: root.trackDotSize
         height: root.trackDotSize
-        radius: 0
+        radius: root.trackDotSize / 2
         color: normalizedValue > root.visualPosition ? root.dotColor : root.dotColorHighlighted
 
         Behavior on color {
@@ -183,7 +183,7 @@ Slider {
         implicitHeight: root.handleHeight
         x: root.leftPadding + (root.visualPosition * root.effectiveDraggingWidth) - (root.handleWidth / 2)
         anchors.verticalCenter: parent.verticalCenter
-        radius: 0
+        radius: Math.max(1, root.handleWidth / 2)
         color: root.handleColor
 
         Behavior on implicitWidth {

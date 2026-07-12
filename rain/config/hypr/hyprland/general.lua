@@ -1,7 +1,7 @@
 -- MONITOR CONFIG
 hl.monitor({
     output = "eDP-1",
-    mode = "1920x1080@144",
+    mode = "1920x1080@60",
     position = "auto",
     scale = 1
 })
@@ -90,11 +90,11 @@ hl.config({
             size = 1,
             passes = 4,
             brightness = 0.8,
-            noise = 0.1,
+            noise = 0,
             contrast = 0.89,
-            vibrancy = 0.5,
+            vibrancy = 0,
             vibrancy_darkness = 0.5,
-            popups = false,
+            popups = true,
             popups_ignorealpha = 0.6,
             input_methods = true,
             input_methods_ignorealpha = 0.8

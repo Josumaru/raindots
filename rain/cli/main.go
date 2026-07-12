@@ -226,7 +226,7 @@ func cmdWallpaper(args []string) {
 }
 
 func cmdLock() {
-	runCmd("hyprlock")
+	ipcCall("lock", []string{"activate"})
 }
 
 func cmdStatus(args []string) {
