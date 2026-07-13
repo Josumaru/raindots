@@ -41,6 +41,24 @@ for dir in hypr quickshell; do
     ln -sfn "$src" "$target"
 done
 
+# Download external plugin binaries (not committed to repo)
+echo "==> Downloading external plugins"
+echo ""
+
+plugin_base="$CONFIG_DIR/hypr/hyprland/plugin"
+mkdir -p "$plugin_base/hyprglass"
+
+if [[ ! -f "$plugin_base/hyprglass/hyprglass.so" ]]; then
+    echo "  Downloading hyprglass.so..."
+    wget -q -O "$plugin_base/hyprglass/hyprglass.so" \
+        "https://github.com/hyprnux/hyprglass/releases/download/v0.6.4/hyprglass.so" || {
+        echo "  WARN: Failed to download hyprglass.so"
+        rm -f "$plugin_base/hyprglass/hyprglass.so"
+    }
+else
+    echo "  [SKIP] hyprglass.so already exists"
+fi
+
 # CLI binary: rain/bin/ → ~/.config/rain/
 bin_src="$BIN_DIR"
 bin_target="$CONFIG_TARGET/rain"

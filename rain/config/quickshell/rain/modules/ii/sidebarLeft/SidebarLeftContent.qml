@@ -66,6 +66,7 @@ Item {
             implicitHeight: swipeView.implicitHeight
             radius: Appearance.rounding.normal
             color: Appearance.colors.colLayer1
+            // color: "transparent"
 
             SwipeView { // Content pages
                 id: swipeView

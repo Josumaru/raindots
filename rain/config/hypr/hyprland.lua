@@ -44,6 +44,10 @@ end
 if is_file_exists(HOME .. "/.config/hypr/custom/keybinds.lua") then
     require("custom.keybinds")
 end
+if is_file_exists(HOME .. "/.config/hypr/hyprland/plugin/hyprglass/hyprglass.lua") then
+    require("hyprland.plugin.hyprglass.hyprglass")
+end
+
 
 -- Shell overrides --
 require("hyprland.shellOverrides.main")
