@@ -6,7 +6,7 @@ REPO_URL="https://github.com/josumaru/raindots.git"
 # Determine RAIN_HOME (repo root)
 if [[ -n "${RAIN_DOTS:-}" ]]; then
     RAIN_HOME="$RAIN_DOTS"
-elif [[ "${BASH_SOURCE[0]:-}" != /* ]] && [[ ! -f "${BASH_SOURCE[0]:-}" ]]; then
+elif [[ ! -v BASH_SOURCE ]] || { [[ "${BASH_SOURCE[0]:-}" != /* ]] && [[ ! -f "${BASH_SOURCE[0]:-}" ]]; }; then
     # Running via curl pipe — no local script path; clone the repo
     TMPDIR="$(mktemp -d)"
     trap 'rm -rf "$TMPDIR"' EXIT
