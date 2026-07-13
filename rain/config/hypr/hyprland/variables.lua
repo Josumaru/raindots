@@ -3,8 +3,8 @@
 
 -- The folder within ~/.config/quickshell containing the config
 hl.env("qsConfig", "rain")
-rainBin = "$HOME/.config/rain/bin/rain"
-hl.env("rainBin", "$HOME/.config/rain/bin")
+rainBin = "$HOME/.config/rain/rain"
+hl.env("rainBin", "$HOME/.config/rain")
 
 -- Convenience: dispatch a rain IPC call (module function)
 function rainIpc(module, func)

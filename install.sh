@@ -7,15 +7,19 @@ REPO_URL="https://github.com/josumaru/raindots.git"
 if [[ -n "${RAIN_DOTS:-}" ]]; then
     RAIN_HOME="$RAIN_DOTS"
 elif [[ ! -v BASH_SOURCE ]] || { [[ "${BASH_SOURCE[0]:-}" != /* ]] && [[ ! -f "${BASH_SOURCE[0]:-}" ]]; }; then
-    # Running via curl pipe — no local script path; clone the repo
-    TMPDIR="$(mktemp -d)"
-    trap 'rm -rf "$TMPDIR"' EXIT
-    echo "==> Cloning raindots to $TMPDIR"
-    git clone --depth=1 "$REPO_URL" "$TMPDIR" || {
-        echo "ERROR: Failed to clone $REPO_URL"
-        exit 1
-    }
-    RAIN_HOME="$TMPDIR"
+    # Running via curl pipe — clone to a persistent location so symlinks survive
+    RAIN_HOME="${RAIN_DOTS:-$HOME/raindots}"
+    if [[ -d "$RAIN_HOME/.git" ]]; then
+        echo "==> Updating raindots at $RAIN_HOME"
+        git -C "$RAIN_HOME" pull --ff-only
+    else
+        mkdir -p "$(dirname "$RAIN_HOME")"
+        echo "==> Cloning raindots to $RAIN_HOME"
+        git clone --depth=1 "$REPO_URL" "$RAIN_HOME" || {
+            echo "ERROR: Failed to clone $REPO_URL"
+            exit 1
+        }
+    fi
 else
     # Running from a local copy: get the script's directory
     RAIN_HOME="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
@@ -63,11 +67,13 @@ fi
 bin_src="$BIN_DIR"
 bin_target="$CONFIG_TARGET/rain"
 if [[ -d $bin_src ]]; then
-    mkdir -p "$bin_target" 2>/dev/null || true
     if [[ -L $bin_target ]] || [[ -d $bin_target ]]; then
-        echo "  $bin_target -> $bin_src"
-        ln -sfn "$bin_src" "$bin_target"
+        bak="${bin_target}.bak.$(date +%s)"
+        echo "  Backing up $bin_target -> $bak"
+        mv "$bin_target" "$bak"
     fi
+    echo "  $bin_target -> $bin_src"
+    ln -sfn "$bin_src" "$bin_target"
 fi
 
 if [[ ! -f "$BIN_DIR/rain" ]]; then

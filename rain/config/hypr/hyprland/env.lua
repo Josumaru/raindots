@@ -17,5 +17,5 @@ hl.env("ILLOGICAL_IMPULSE_VIRTUAL_ENV", home_dir .. "/.local/state/quickshell/.v
 
 -- Rain CLI: centralised binary name so renames stay in one place.
 -- Hyprland keybinds call "$rainBin/rain <cmd>" and QML reads Quickshell.env("RAIN_BIN").
-hl.env("RAIN_BIN", home_dir .. "/.config/rain/bin/rain")
-hl.env("RAIN_BIN_DIR", home_dir .. "/.config/rain/bin")
+hl.env("RAIN_BIN", home_dir .. "/.config/rain/rain")
+hl.env("RAIN_BIN_DIR", home_dir .. "/.config/rain")
