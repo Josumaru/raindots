@@ -1,8 +1,3 @@
-local plugin_path = HOME .. "/.config/hypr/hyprland/plugin/hyprglass/hyprglass.so"
-if not hl.plugin.hyprglass then
-    os.execute("hyprctl plugin load " .. plugin_path)
-end
-
 if hl.plugin.hyprglass then
     local hg = hl.plugin.hyprglass
 
@@ -32,5 +27,7 @@ if hl.plugin.hyprglass then
 
     -- Layer surfaces: each call whitelists the namespace and configures it
     hg.layer("quickshell:*", { preset = "clear", mask_threshold = 0.1 })
+    hg.layer("evershot", { preset = "clear", mask_threshold = 0.1 })
+    hl.window_rule({ match = { class = "Waydroid" },       tag = "+hyprglass_disabled" })
     hl.window_rule({ match = { class = "discord" },       tag = "+hyprglass_disabled" })
 end

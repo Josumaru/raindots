@@ -90,5 +90,28 @@ StyledPopup {
                 }
             }
         }
+
+        Column {
+            anchors.top: parent.top
+            spacing: 8
+
+            StyledPopupHeaderRow {
+                icon: "wifi"
+                label: Translation.tr("Network")
+            }
+            Column {
+                spacing: 4
+                StyledPopupValueRow {
+                    icon: "arrow_down"
+                    label: Translation.tr("Download:")
+                    value: NetworkSpeed.downloadSpeedFormatted
+                }
+                StyledPopupValueRow {
+                    icon: "arrow_up"
+                    label: Translation.tr("Upload:")
+                    value: NetworkSpeed.uploadSpeedFormatted
+                }
+            }
+        }
     }
 }

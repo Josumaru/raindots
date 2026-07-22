@@ -58,13 +58,13 @@ hl.bind("SUPER + V", hl.dsp.exec_cmd(
 hl.bind("SUPER + Period", hl.dsp.exec_cmd(
         "pgrep -f 'quickshell -c rain'" .. " || pkill fuzzel || " .. hyprScripts .. "/fuzzel-emoji.sh copy"),
     { description = "Utilities: Emoji >> clipboard" })
-hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd(rainBin .. " ipc regionSelector screenshot"), { description = "Utilities: Screen snip" })
+hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd(rainBin .. " ipc region screenshot"), { description = "Utilities: Screen snip" })
 hl.bind("SUPER + SHIFT + S",
     hl.dsp.exec_cmd("pgrep -f 'quickshell -c rain'" .. " || pidof slurp || hyprshot --freeze --clipboard-only --mode region --silent"))
-hl.bind("SUPER + SHIFT + A", hl.dsp.exec_cmd(rainBin .. " ipc regionSelector search"), { description = "Utilities: Google Lens" })
+hl.bind("SUPER + SHIFT + A", hl.dsp.exec_cmd(rainBin .. " ipc region search"), { description = "Utilities: Google Lens" })
 hl.bind("SUPER + SHIFT + A", hl.dsp.exec_cmd("pgrep -f 'quickshell -c rain'" .. " || pidof slurp || " .. hyprScripts .. "/snip_to_search.sh"))
 --# OCR
-hl.bind("SUPER + SHIFT + X", hl.dsp.exec_cmd(rainBin .. " ipc regionSelector ocr"),
+hl.bind("SUPER + SHIFT + X", hl.dsp.exec_cmd(rainBin .. " ipc region ocr"),
     { description = "Utilities: Character recognition >> clipboard" })
 hl.bind("SUPER + SHIFT + T", hl.dsp.exec_cmd(rainBin .. " ipc screenTranslator translate"),
     { description = "Utilities: Translate screen content" })
@@ -76,9 +76,9 @@ hl.bind("SUPER + SHIFT + X", hl.dsp.exec_cmd(
 hl.bind("SUPER + SHIFT + C", hl.dsp.exec_cmd("hyprpicker -a"),
     { description = "Utilities: Pick color #RRGGBB >> clipboard" })
 --# Recording stuff
-hl.bind("SUPER + SHIFT + R", hl.dsp.exec_cmd(rainBin .. " ipc regionSelector record"),
+hl.bind("SUPER + SHIFT + R", hl.dsp.exec_cmd(rainBin .. " ipc region record"),
     { locked = true, description = "Utilities: Record region (no sound)" })
-hl.bind("SUPER + ALT + R", hl.dsp.exec_cmd(rainBin .. " ipc regionSelector record"), { locked = true })
+hl.bind("SUPER + ALT + R", hl.dsp.exec_cmd(rainBin .. " ipc region record"), { locked = true })
 --# Fullscreen screenshot
 local grimhyprctl = "grim -o \"$(hyprctl activeworkspace -j | jq -r '.monitor')\""
 hl.bind("Print", hl.dsp.exec_cmd(grimhyprctl .. " - | wl-copy"),
@@ -228,7 +228,7 @@ end
 
 hl.bind("SUPER + ALT + S",
     hl.dsp.window.move({ workspace = "special:special", follow = false }), { description = "Window: Send to scratchpad" })
-hl.bind("CTRL + SUPER + S", hl.dsp.workspace.toggle_special("special"))
+-- hl.bind("CTRL + SUPER + S", hl.dsp.workspace.toggle_special("special"))
 
 --##! Workspace
 --# Switching

@@ -64,7 +64,7 @@ generate_thumbnail() {
     if [ -f "$out" ]; then
         return
     fi
-    magick "$abs_path" -resize "${THUMBNAIL_SIZE}x${THUMBNAIL_SIZE}" "$out"
+    magick -limit memory 256MiB -limit map 512MiB "$abs_path" -resize "${THUMBNAIL_SIZE}x${THUMBNAIL_SIZE}" "$out"
 }
 
 # Parse arguments

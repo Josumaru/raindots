@@ -25,6 +25,55 @@ Item { // Bar content region
         color: Appearance.colors.colOutlineVariant
     }
 
+    component NetworkSpeedIndicator: Item {
+        id: netItem
+        property string direction: "down"
+        property string displayText: "0 B/s"
+        clip: true
+        visible: width > 0 && height > 0
+        implicitWidth: netRowLayout.x < 0 ? 0 : netRowLayout.implicitWidth
+        implicitHeight: Appearance.sizes.barHeight
+        property bool netShown: true
+
+        RowLayout {
+            id: netRowLayout
+            spacing: 2
+            x: netShown ? 0 : -netRowLayout.width
+            anchors.verticalCenter: parent.verticalCenter
+
+            Icon {
+                name: direction === "down" ? "arrow_down" : "arrow_up"
+                size: Appearance.font.pixelSize.normal
+                tint: Appearance.m3colors.m3onSecondaryContainer
+                Layout.alignment: Qt.AlignVCenter
+            }
+
+            Item {
+                Layout.alignment: Qt.AlignVCenter
+                implicitWidth: speedTextMetrics.width
+                implicitHeight: speedLabel.implicitHeight
+
+                TextMetrics {
+                    id: speedTextMetrics
+                    text: "99 MB/s"
+                    font.pixelSize: Appearance.font.pixelSize.small
+                }
+
+                StyledText {
+                    id: speedLabel
+                    anchors.centerIn: parent
+                    color: Appearance.colors.colOnLayer1
+                    font.pixelSize: Appearance.font.pixelSize.small
+                    text: displayText
+                }
+            }
+
+            Behavior on x {
+                animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
+            }
+        }
+    }
+
     // Background shadow
     Loader {
         active: Config.options.bar.showBackground && Config.options.bar.cornerStyle === 1 && Config.options.bar.floatStyleShadow
@@ -316,6 +365,25 @@ Item { // Bar content region
                     }
                 }
             }
+            
+            NetworkSpeedIndicator {
+                direction: "up"
+                displayText: NetworkSpeed.uploadSpeedFormatted
+                netShown: Config.options.bar.resources.alwaysShowCpu || 
+                    !(MprisController.activePlayer?.trackTitle?.length > 0) ||
+                    root.alwaysShowAllResources
+                Layout.leftMargin: netShown ? 6 : 0
+            }
+                            
+            NetworkSpeedIndicator {
+                direction: "down"
+                displayText: NetworkSpeed.downloadSpeedFormatted
+                netShown: Config.options.bar.resources.alwaysShowCpu || 
+                    !(MprisController.activePlayer?.trackTitle?.length > 0) ||
+                    root.alwaysShowAllResources
+                Layout.leftMargin: netShown ? 6 : 0
+            }
+
 
             SysTray {
                 visible: root.useShortenedForm === 0

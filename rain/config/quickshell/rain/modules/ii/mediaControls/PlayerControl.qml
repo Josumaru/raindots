@@ -293,7 +293,7 @@ Item { // Player instance
                         contentItem: Icon {
                             size: Appearance.font.pixelSize.huge
                             tint: root.player?.isPlaying ? blendedColors.colOnPrimary : blendedColors.colOnSecondaryContainer
-                            name: root.player?.isPlaying ? "play" : "play"
+                            name: root.player?.isPlaying ? "pause" : "play"
 
                             Behavior on tint {
                                 animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)

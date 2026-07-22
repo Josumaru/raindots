@@ -428,6 +428,18 @@ Item {
         interval: settings.scrollThrottleMs 
     }
 
+    property string pendingPreviewFileName: ""
+    Timer {
+        id: previewDebounce
+        interval: 100
+        onTriggered: {
+            if (window.pendingPreviewFileName !== "") {
+                window.doPreviewWallpaper(window.pendingPreviewFileName);
+                window.pendingPreviewFileName = "";
+            }
+        }
+    }
+
     property bool isFilterAnimating: false
     Timer {
         id: filterAnimationTimer
@@ -586,7 +598,7 @@ Item {
                         case "$extLower" in
                             mp4|mkv|mov|webm|avi) hex="" ;;
                             *)
-                                hex=$($CMD "$file" -modulate 100,200 -resize "1x1^" -gravity center -extent 1x1 -depth 8 -format "%[hex:p{0,0}]" info:- 2>/dev/null | grep -oE '[0-9A-Fa-f]{6}' | head -n 1)
+                                hex=$($CMD -limit memory 256MiB -limit map 512MiB "$file" -modulate 100,200 -resize "1x1^" -gravity center -extent 1x1 -depth 8 -format "%[hex:p{0,0}]" info:- 2>/dev/null | grep -oE '[0-9A-Fa-f]{6}' | head -n 1)
                                 ;;
                         esac
                         if [ -n "$hex" ]; then
@@ -753,6 +765,11 @@ Item {
     // LIVE PREVIEW: set wallpaper without closing the picker
     // -------------------------------------------------------------------------
     function previewWallpaper(safeFileName) {
+        window.pendingPreviewFileName = safeFileName || "";
+        previewDebounce.restart();
+    }
+
+    function doPreviewWallpaper(safeFileName) {
         if (!safeFileName) return;
         const originalFile = window.srcDir + "/" + window.getCleanName(safeFileName);
         window.targetWallName = safeFileName;
@@ -1445,7 +1462,7 @@ delegate: Item {
 
     function generateThumbnails() {
         Quickshell.execDetached(["bash", "-c",
-            `THUMBS="${decodeURIComponent(window.thumbDir.replace("file://", ""))}"; SRCDIR="${window.srcDir}"; mkdir -p "$THUMBS"; for f in "$SRCDIR"/*.{jpg,jpeg,png,webp,gif,mp4,mkv,mov,webm}; do [ -f "$f" ] || continue; base="$(basename "$f")"; extLower=$(echo "$base" | sed 's/.*\.//' | tr '[:upper:]' '[:lower:]'); case "$extLower" in mp4|mkv|mov|webm|avi) thumb="$THUMBS/$(echo "$base" | sed 's/\.[^.]*$//').jpg"; [ -f "$thumb" ] && continue; timeout 10 ffmpegthumbnailer -i "$f" -o "$thumb" -s 0 -q 10 -c jpeg 2>/dev/null || timeout 10 ffmpeg -i "$f" -vf "scale=420:-1" -frames:v 1 -q:v 10 "$thumb" 2>/dev/null || true ;; *) thumb="$THUMBS/$base"; [ -f "$thumb" ] && continue; timeout 10 magick "$f" -resize x420 -quality 70 "$thumb" 2>/dev/null || timeout 10 convert "$f" -resize x420 -quality 70 "$thumb" 2>/dev/null || true ;; esac; done`
+            `THUMBS="${decodeURIComponent(window.thumbDir.replace("file://", ""))}"; SRCDIR="${window.srcDir}"; mkdir -p "$THUMBS"; for f in "$SRCDIR"/*.{jpg,jpeg,png,webp,gif,mp4,mkv,mov,webm}; do [ -f "$f" ] || continue; base="$(basename "$f")"; extLower=$(echo "$base" | sed 's/.*\.//' | tr '[:upper:]' '[:lower:]'); case "$extLower" in mp4|mkv|mov|webm|avi|gif) thumb="$THUMBS/$(echo "$base" | sed 's/\.[^.]*$//').jpg"; [ -f "$thumb" ] && continue; timeout 10 ffmpegthumbnailer -i "$f" -o "$thumb" -s 0 -q 10 -c jpeg 2>/dev/null || timeout 10 ffmpeg -i "$f" -vf "scale=420:-1" -frames:v 1 -q:v 10 "$thumb" 2>/dev/null || true ;; *) thumb="$THUMBS/$base"; [ -f "$thumb" ] && continue; timeout 10 magick -limit memory 256MiB -limit map 512MiB "$f" -resize x420 -quality 70 "$thumb" 2>/dev/null || timeout 10 convert -limit memory 256MiB -limit map 512MiB "$f" -resize x420 -quality 70 "$thumb" 2>/dev/null || true ;; esac; done`
         ]);
     }
 

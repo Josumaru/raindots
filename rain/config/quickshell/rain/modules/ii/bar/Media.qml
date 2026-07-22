@@ -64,7 +64,7 @@ Item {
                 
                 Icon {
                     anchors.centerIn: parent
-                    name: activePlayer?.isPlaying ? "play" : "music_note"
+                    name: activePlayer?.isPlaying ? "play" : "pause"
                     size: Appearance.font.pixelSize.normal
                     tint: Appearance.m3colors.m3onSecondaryContainer
                 }
