@@ -1,98 +1,26 @@
 #!/usr/bin/env bash
+# Raindots installer — boots into the Go TUI installer.
 set -euo pipefail
 
 REPO_URL="https://github.com/josumaru/raindots.git"
 
-# Determine RAIN_HOME (repo root)
-if [[ -n "${RAIN_DOTS:-}" ]]; then
-    RAIN_HOME="$RAIN_DOTS"
-elif [[ ! -v BASH_SOURCE ]] || { [[ "${BASH_SOURCE[0]:-}" != /* ]] && [[ ! -f "${BASH_SOURCE[0]:-}" ]]; }; then
-    # Running via curl pipe — clone to a persistent location so symlinks survive
-    RAIN_HOME="${RAIN_DOTS:-$HOME/raindots}"
-    if [[ -d "$RAIN_HOME/.git" ]]; then
-        echo "==> Updating raindots at $RAIN_HOME"
-        git -C "$RAIN_HOME" pull --ff-only
-    else
-        mkdir -p "$(dirname "$RAIN_HOME")"
-        echo "==> Cloning raindots to $RAIN_HOME"
-        git clone --depth=1 "$REPO_URL" "$RAIN_HOME" || {
-            echo "ERROR: Failed to clone $REPO_URL"
-            exit 1
-        }
-    fi
-else
-    # Running from a local copy: get the script's directory
-    RAIN_HOME="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+if [[ -v BASH_SOURCE && -n "${BASH_SOURCE[0]:-}" ]]; then
+  RAIN_HOME="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 fi
 
-CONFIG_DIR="$RAIN_HOME/rain/config"
-BIN_DIR="$RAIN_HOME/rain/bin"
-CONFIG_TARGET="${XDG_CONFIG_HOME:-$HOME/.config}"
-
-echo "==> Symlinking configs to $CONFIG_TARGET"
-echo ""
-
-for dir in hypr quickshell; do
-    src="$CONFIG_DIR/$dir"
-    target="$CONFIG_TARGET/$dir"
-    [[ -d $src ]] || { echo "  [SKIP] $dir (source not found)"; continue; }
-    if [[ -L $target ]] || [[ -d $target ]]; then
-        bak="${target}.bak.$(date +%s)"
-        echo "  Backing up $target -> $bak"
-        mv "$target" "$bak"
-    fi
-    echo "  $target -> $src"
-    ln -sfn "$src" "$target"
-done
-
-# Download external plugin binaries (not committed to repo)
-echo "==> Downloading external plugins"
-echo ""
-
-plugin_base="$CONFIG_DIR/hypr/hyprland/plugin"
-mkdir -p "$plugin_base/hyprglass"
-
-if [[ ! -f "$plugin_base/hyprglass/hyprglass.so" ]]; then
-    echo "  Downloading hyprglass.so..."
-    wget -q -O "$plugin_base/hyprglass/hyprglass.so" \
-        "https://github.com/hyprnux/hyprglass/releases/download/v0.6.4/hyprglass.so" || {
-        echo "  WARN: Failed to download hyprglass.so"
-        rm -f "$plugin_base/hyprglass/hyprglass.so"
-    }
-else
-    echo "  [SKIP] hyprglass.so already exists"
+if [[ ! -d "${RAIN_HOME:-/dev/null}/rain/config/hypr" ]]; then
+  RAIN_HOME="${RAIN_DOTS:-$HOME/raindots}"
+  if [[ -d "$RAIN_HOME/.git" ]]; then
+    git -C "$RAIN_HOME" pull --ff-only
+  else
+    mkdir -p "$(dirname "$RAIN_HOME")"
+    git clone --depth=1 "$REPO_URL" "$RAIN_HOME"
+  fi
 fi
 
-# CLI binary: rain/bin/ → ~/.config/rain/
-bin_src="$BIN_DIR"
-bin_target="$CONFIG_TARGET/rain"
-if [[ -d $bin_src ]]; then
-    if [[ -L $bin_target ]] || [[ -d $bin_target ]]; then
-        bak="${bin_target}.bak.$(date +%s)"
-        echo "  Backing up $bin_target -> $bak"
-        mv "$bin_target" "$bak"
-    fi
-    echo "  $bin_target -> $bin_src"
-    ln -sfn "$bin_src" "$bin_target"
+cd "$RAIN_HOME/installer"
+if [[ ! -x installer ]]; then
+  echo "==> Building the TUI installer..."
+  go build -o installer .
 fi
-
-if [[ ! -f "$BIN_DIR/rain" ]]; then
-    echo ""
-    echo "  Building rain CLI..."
-    if command -v go &>/dev/null; then
-        cd "$RAIN_HOME/rain/cli" && go build -o "$BIN_DIR/rain" . 2>/dev/null || true
-    else
-        echo "  WARN: Go not found — skip rain CLI build"
-    fi
-fi
-
-echo ""
-echo "==> Done. Configs now live from:"
-echo "    $CONFIG_DIR"
-echo ""
-echo "    Add to ~/.bashrc / ~/.zshrc for CLI access:"
-echo "    export PATH=\"\$PATH:$BIN_DIR\""
-echo ""
-echo "    Edit files in raindots/ — changes apply immediately."
-echo "    To update later: cd $RAIN_HOME && git pull"
-echo "    Or re-run this installer to resync symlinks."
+exec ./installer "$@"

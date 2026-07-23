@@ -1,7 +1,7 @@
 local home_dir = os.getenv("HOME")
 
 -- Wayland
--- hl.env("ELECTRON_OZONE_PLATFORM_HINT", "auto")
+hl.env("ELECTRON_OZONE_PLATFORM_HINT", "auto")
 
 -- Applications
 local xdg_data_dirs_old = os.getenv("XDG_DATA_DIRS") or ""

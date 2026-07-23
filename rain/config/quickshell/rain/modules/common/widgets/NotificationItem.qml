@@ -31,6 +31,19 @@ Item { // Notification item area
 
     implicitHeight: background.implicitHeight
 
+    function invokeDefaultAction() {
+        var acts = notificationObject.actions ?? [];
+        if (acts.length === 0) return;
+        if (notificationObject.notification == null) return;
+        for (var i = 0; i < acts.length; i++) {
+            if (acts[i].identifier === "default" || acts[i].identifier === "") {
+                Notifications.attemptInvokeAction(notificationObject.notificationId, acts[i].identifier);
+                return;
+            }
+        }
+        Notifications.attemptInvokeAction(notificationObject.notificationId, acts[0].identifier);
+    }
+
     function destroyWithAnimation(left = false) {
         root.qmlParent.resetDrag()
         background.anchors.leftMargin = background.anchors.leftMargin; // Break binding
@@ -71,7 +84,9 @@ Item { // Notification item area
         acceptedButtons: Qt.LeftButton | Qt.MiddleButton
 
         onClicked: (mouse) => {
-            if (mouse.button === Qt.MiddleButton) {
+            if (mouse.button === Qt.LeftButton) {
+                root.invokeDefaultAction();
+            } else if (mouse.button === Qt.MiddleButton) {
                 root.destroyWithAnimation();
             }
         }
@@ -211,109 +226,8 @@ Item { // Notification item area
 
                 Item {
                     Layout.fillWidth: true
-                    implicitWidth: actionsFlickable.implicitWidth
-                    implicitHeight: actionsFlickable.implicitHeight
-
-                    layer.enabled: true
-                    layer.effect: OpacityMask {
-                        maskSource: Rectangle {
-                            width: actionsFlickable.width
-                            height: actionsFlickable.height
-                            radius: Appearance.rounding.small
-                        }
-                    }
-
-                    ScrollEdgeFade {
-                        target: actionsFlickable
-                        vertical: false
-                    }
-
-                    StyledFlickable { // Notification actions
-                        id: actionsFlickable
-                        anchors.fill: parent
-                        implicitHeight: actionRowLayout.implicitHeight
-                        contentWidth: actionRowLayout.implicitWidth
-
-                        Behavior on opacity {
-                            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
-                        }
-                        Behavior on height {
-                            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
-                        }
-                        Behavior on implicitHeight {
-                            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
-                        }
-
-                        RowLayout {
-                            id: actionRowLayout
-                            Layout.alignment: Qt.AlignBottom
-
-                            NotificationActionButton {
-                                Layout.fillWidth: true
-                                buttonText: Translation.tr("Close")
-                                urgency: notificationObject.urgency
-                                implicitWidth: (notificationObject.actions.length == 0) ? ((actionsFlickable.width - actionRowLayout.spacing) / 2) : 
-                                    (contentItem.implicitWidth + leftPadding + rightPadding)
-
-                                onClicked: {
-                                    root.destroyWithAnimation()
-                                }
-
-                                contentItem: Icon {
-                                    size: Appearance.font.pixelSize.larger
-                                    tint: (notificationObject.urgency == NotificationUrgency.Critical) ? 
-                                        Appearance.m3colors.m3onSurfaceVariant : Appearance.m3colors.m3onSurface
-                                    name: "close"
-                                }
-                            }
-
-                            Repeater {
-                                id: actionRepeater
-                                model: notificationObject.actions
-                                NotificationActionButton {
-                                    id: notifAction
-                                    required property var modelData
-                                    Layout.fillWidth: true
-                                    buttonText: modelData.text
-                                    urgency: notificationObject.urgency
-                                    onClicked: {
-                                        Notifications.attemptInvokeAction(notificationObject.notificationId, modelData.identifier);
-                                    }
-                                }
-                            }
-
-                            NotificationActionButton {
-                                Layout.fillWidth: true
-                                urgency: notificationObject.urgency
-                                implicitWidth: (notificationObject.actions.length == 0) ? ((actionsFlickable.width - actionRowLayout.spacing) / 2) : 
-                                    (contentItem.implicitWidth + leftPadding + rightPadding)
-
-                                onClicked: {
-                                    Quickshell.clipboardText = notificationObject.body
-                                    copyIcon.name = "inventory"
-                                    copyIconTimer.restart()
-                                }
-
-                                Timer {
-                                    id: copyIconTimer
-                                    interval: 1500
-                                    repeat: false
-                                    onTriggered: {
-                                        copyIcon.name = "check"
-                                    }
-                                }
-
-                                contentItem: Icon {
-                                    id: copyIcon
-                                    size: Appearance.font.pixelSize.larger
-                                    tint: (notificationObject.urgency == NotificationUrgency.Critical) ? 
-                                        Appearance.m3colors.m3onSurfaceVariant : Appearance.m3colors.m3onSurface
-                                    name: "check"
-                                }
-                            }
-                            
-                        }
-                    }
+                    implicitHeight: 0
+                    visible: false
                 }
             }
         }
