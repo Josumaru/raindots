@@ -76,13 +76,13 @@ ContentPage {
 
             IconImage {
                 implicitSize: 80
-                source: Quickshell.iconPath("illogical-impulse")
+                source: Quickshell.iconPath("rain")
             }
 
             ColumnLayout {
                 Layout.alignment: Qt.AlignVCenter
                 StyledText {
-                    text: Translation.tr("illogical-impulse")
+                    text: Translation.tr("rain")
                     font.pixelSize: Appearance.font.pixelSize.title
                 }
                 StyledText {
@@ -128,7 +128,7 @@ ContentPage {
             ColumnLayout {
                 Layout.fillWidth: true
                 StyledText { text: Translation.tr("Shell"); font.weight: Font.DemiBold; color: Appearance.warm.onSurfaceDim; font.pixelSize: 12 }
-                StyledText { text: "illogical-impulse"; font.pixelSize: 14 }
+                StyledText { text: "rain"; font.pixelSize: 14 }
             }
         }
     }

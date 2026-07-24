@@ -6,7 +6,7 @@ import Quickshell.Io
 import "Singletons"
 
 // Shell Settings: live editor for shell.json. every edit hits the running
-// shell at once via ~/.config/ryoku/shell.json (throttled, atomic).
+// shell at once via ~/.config/rain/shell.json (throttled, atomic).
 Item {
     id: page
 
@@ -120,7 +120,7 @@ Item {
 
     FileView {
         id: cfgShell
-        path: (Quickshell.env("XDG_CONFIG_HOME") || (Quickshell.env("HOME") + "/.config")) + "/ryoku/shell.json"
+        path: (Quickshell.env("XDG_CONFIG_HOME") || (Quickshell.env("HOME") + "/.config")) + "/rain/shell.json"
         blockLoading: true
         watchChanges: false
         printErrors: false

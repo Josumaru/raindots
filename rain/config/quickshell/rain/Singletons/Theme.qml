@@ -4,7 +4,7 @@ import Quickshell
 
 // shell color tokens. when Config.matchWallpaper is true, accent and surface
 // colors follow the wallust palette; otherwise they use a warm fallback.
-// mirrors the ryoku-arch shell Theme.qml.
+// mirrors the rain shell Theme.qml.
 QtObject {
     readonly property color keyTop:   Config.matchWallpaper ? Wallust.elevated : "#221a12"
     readonly property color ember:    Config.matchWallpaper ? Qt.lighter(Wallust.accent, 1.22) : "#e83b30"

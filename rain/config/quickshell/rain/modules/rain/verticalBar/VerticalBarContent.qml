@@ -8,7 +8,7 @@ import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.common.functions
-import qs.modules.ii.bar as Bar
+import qs.modules.rain.bar as Bar
 
 Item { // Bar content region
     id: root
@@ -274,14 +274,14 @@ Item { // Bar content region
                     }
                     Icon {
                         name: Network.materialSymbol
-                        size: Appearance.font.pixelSize.larger
+                        size: Appearance.font.pixelSize.small
                         tint: rightSidebarButton.colText
                     }
                     Icon {
                         Layout.topMargin: indicatorsColumnLayout.realSpacing
                         visible: BluetoothStatus.available
                         name: "bluetooth"
-                        size: Appearance.font.pixelSize.larger
+                        size: Appearance.font.pixelSize.small
                         tint: rightSidebarButton.colText
                     }
                 }

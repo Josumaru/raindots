@@ -78,7 +78,7 @@ Singleton {
         JsonAdapter {
             id: configOptionsJsonAdapter
 
-            property string panelFamily: "ii" // "ii", "waffle"
+            property string panelFamily: "rain" // "rain", "waffle"
 
             property JsonObject policies: JsonObject {
                 property int ai: 1 // 0: No | 1: Yes | 2: Local
@@ -117,7 +117,7 @@ Singleton {
                     property string expressive: "Space Grotesk"
                 }
                 property JsonObject transparency: JsonObject {
-                    property bool enable: false
+                    property bool enable: true
                     property bool automatic: true
                     property real backgroundTransparency: 0.11
                     property real contentTransparency: 0.57
@@ -134,7 +134,7 @@ Singleton {
                     }
                 }
                 property JsonObject palette: JsonObject {
-                    property string type: "auto" // Allowed: auto, scheme-content, scheme-expressive, scheme-fidelity, scheme-fruit-salad, scheme-monochrome, scheme-neutral, scheme-rainbow, scheme-tonal-spot
+                    property string type: "scheme-content" // Allowed: auto, scheme-content, scheme-expressive, scheme-fidelity, scheme-fruit-salad, scheme-monochrome, scheme-neutral, scheme-rainbow, scheme-tonal-spot
                     property string accentColor: ""
                 }
             }
@@ -234,9 +234,9 @@ Singleton {
                     }
                 }
                 property bool bottom: false // Instead of top
-                property int cornerStyle: 0 // 0: Hug | 1: Float | 2: Plain rectangle
+                property int cornerStyle: 1 // 0: Hug | 1: Float | 2: Plain rectangle
                 property bool floatStyleShadow: true // Show shadow behind bar when cornerStyle == 1 (Float)
-                property bool borderless: false // true for no grouping of items
+                property bool borderless: true // true for no grouping of items
                 property string topLeftIcon: "spark" // Options: "distro" or any icon name in ~/.config/quickshell/ii/assets/icons
                 property bool showBackground: true
                 property bool verbose: true
@@ -251,7 +251,7 @@ Singleton {
                 property list<string> screenList: [] // List of names, like "eDP-1", find out with 'hyprctl monitors' command
                 property JsonObject utilButtons: JsonObject {
                     property bool showScreenSnip: true
-                    property bool showColorPicker: false
+                    property bool showColorPicker: true
                     property bool showMicToggle: false
                     property bool showKeyboardToggle: true
                     property bool showDarkModeToggle: true
@@ -259,12 +259,12 @@ Singleton {
                     property bool showScreenRecord: false
                 }
                 property JsonObject workspaces: JsonObject {
-                    property bool monochromeIcons: true
+                    property bool monochromeIcons: false
                     property int shown: 10
-                    property bool showAppIcons: true
-                    property bool alwaysShowNumbers: false
+                    property bool showAppIcons: false
+                    property bool alwaysShowNumbers: true
                     property int showNumberDelay: 300 // milliseconds
-                    property list<string> numberMap: ["1", "2"] // Characters to show instead of numbers on workspace indicator
+                    property list<string> numberMap: ["\u4e00", "\u4e8c", "\u4e09", "\u56db", "\u4e94", "\u516d", "\u4e03", "\u516b", "\u4e5d", "\u5341", "\u5341\u4e00", "\u5341\u4e8c", "\u5341\u4e09", "\u5341\u56db", "\u5341\u4e94", "\u5341\u516d", "\u5341\u4e03", "\u5341\u516b", "\u5341\u4e5d", "\u4e8c\u5341"] // Characters to show instead of numbers on workspace indicator
                     property bool useNerdFont: false
                 }
                 property JsonObject weather: JsonObject {
@@ -276,7 +276,7 @@ Singleton {
                 }
                 property JsonObject indicators: JsonObject {
                     property JsonObject notifications: JsonObject {
-                        property bool showUnreadCount: false
+                        property bool showUnreadCount: true
                     }
                 }
                 property JsonObject tooltips: JsonObject {
@@ -302,7 +302,7 @@ Singleton {
                 // 5:  | 6:  | 7: 󰣇 | 8:  | 9: 
                 // 10:  | 11:  | 12:  | 13:  | 14: 󱄛
                 property string superKey: ""
-                property bool useMacSymbol: false
+                property bool useMacSymbol: true
                 property bool splitButtons: false
                 property bool useMouseSymbol: false
                 property bool useFnSymbol: false
@@ -420,7 +420,7 @@ Singleton {
                 property real clickthroughOpacity: 0.8
                 property JsonObject floatingImage: JsonObject {
                     property string imageSource: "https://media.tenor.com/H5U5bJzj3oAAAAAi/kukuru.gif"
-                    property real scale: 0.5
+                    property real scale: 0.6
                 }
             }
 
@@ -529,12 +529,23 @@ Singleton {
                     property JsonObject android: JsonObject {
                         property int columns: 5
                         property list<var> toggles: [
-                            { "size": 2, "type": "network" },
-                            { "size": 2, "type": "bluetooth"  },
+                            { "size": 1, "type": "network" },
+                            { "size": 1, "type": "bluetooth" },
                             { "size": 1, "type": "idleInhibitor" },
                             { "size": 1, "type": "mic" },
-                            { "size": 2, "type": "audio" },
-                            { "size": 2, "type": "nightLight" }
+                            { "size": 1, "type": "audio" },
+                            { "size": 1, "type": "nightLight" },
+                            { "size": 1, "type": "easyEffects" },
+                            { "size": 1, "type": "cloudflareWarp" },
+                            { "size": 1, "type": "darkMode" },
+                            { "size": 1, "type": "gameMode" },
+                            { "size": 1, "type": "musicRecognition" },
+                            { "size": 1, "type": "screenSnip" },
+                            { "size": 1, "type": "colorPicker" },
+                            { "size": 1, "type": "onScreenKeyboard" },
+                            { "size": 1, "type": "notifications" },
+                            { "size": 1, "type": "powerProfile" },
+                            { "size": 1, "type": "antiFlashbang" }
                         ]
                     }
                 }

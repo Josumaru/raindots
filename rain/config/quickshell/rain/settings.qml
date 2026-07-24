@@ -75,7 +75,7 @@ ApplicationWindow {
         {
             name: Translation.tr("About"),
             icon: "info",
-            subtitle: Translation.tr("Version, credits, and the people behind illogical-impulse."),
+            subtitle: Translation.tr("Version, credits, and the people behind rain."),
             component: "modules/settings/About.qml",
             group: Translation.tr("System")
         }
@@ -98,7 +98,7 @@ ApplicationWindow {
 
     visible: true
     onClosing: Qt.quit()
-    title: "illogical-impulse Settings"
+    title: "rain Settings"
 
     Component.onCompleted: {
         MaterialThemeLoader.reapplyTheme()
@@ -147,14 +147,14 @@ ApplicationWindow {
                             anchors.horizontalCenter: parent.horizontalCenter
                             spacing: 6
                             StyledText {
-                                text: "ILLOGICAL"
+                                text: "RAIN"
                                 color: Appearance.warm.onSurface
                                 font.pixelSize: 15
                                 font.weight: Font.Black
                                 font.letterSpacing: 3
                             }
                             StyledText {
-                                text: "IMPULSE"
+                                text: "DOTS"
                                 color: Appearance.warm.accent
                                 font.pixelSize: 15
                                 font.weight: Font.Black
@@ -328,7 +328,7 @@ ApplicationWindow {
                 anchors.leftMargin: 26
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: 22
-                text: "ii  shell"
+                text: "rain  shell"
                 color: Appearance.warm.onSurfaceDim
                 opacity: 0.6
                 font.pixelSize: 11

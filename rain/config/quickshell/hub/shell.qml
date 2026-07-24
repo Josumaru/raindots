@@ -15,7 +15,7 @@ ShellRoot {
         implicitHeight: 880
         minimumSize: Qt.size(900, 600)
 
-        // Quit on close so process/lock always releases (see ryoku-arch notes).
+        // Quit on close so process/lock always releases (see rain-arch notes).
         onClosed: Qt.quit()
 
         Hub {

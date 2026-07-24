@@ -6,7 +6,7 @@ import qs.modules.common
 import qs.modules.common.functions
 import qs.modules.common.widgets
 import qs.modules.common.widgets.widgetCanvas
-import qs.modules.ii.background.widgets
+import qs.modules.rain.background.widgets
 
 AbstractBackgroundWidget {
     id: root

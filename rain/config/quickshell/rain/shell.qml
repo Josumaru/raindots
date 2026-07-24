@@ -19,7 +19,7 @@ ShellRoot {
     ReloadPopup {}
 
     Component.onCompleted: {
-        console.log("rain shell loaded (ii-style)")
+        console.log("rain shell loaded")
         MaterialThemeLoader.reapplyTheme()
         Hyprsunset.load()
         FirstRunExperience.load()
@@ -29,7 +29,7 @@ ShellRoot {
         Updates.load()
     }
 
-    property list<string> families: ["ii"]
+    property list<string> families: ["rain"]
     function cyclePanelFamily() {
         const currentIndex = families.indexOf(Config.options.panelFamily)
         const nextIndex = (currentIndex + 1) % families.length
@@ -43,7 +43,7 @@ ShellRoot {
     }
 
     PanelFamilyLoader {
-        identifier: "ii"
+        identifier: "rain"
         component: RainFamily {}
     }
 

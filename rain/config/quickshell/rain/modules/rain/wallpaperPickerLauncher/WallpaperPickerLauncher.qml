@@ -6,7 +6,7 @@ import Quickshell.Hyprland
 Scope {
     id: root
 
-    readonly property string pickerPath: Quickshell.shellPath("modules/ii/wallpaperPicker/Main.qml")
+    readonly property string pickerPath: Quickshell.shellPath("modules/rain/wallpaperPicker/Main.qml")
 
     function toggle() {
         Quickshell.execDetached(["bash", "-c",

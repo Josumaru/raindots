@@ -17,7 +17,7 @@ get_pictures_dir() {
     echo "$HOME/Pictures"
 }
 
-QUICKSHELL_CONFIG_NAME="ii"
+QUICKSHELL_CONFIG_NAME="rain"
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
@@ -35,8 +35,8 @@ randomIndex=$((RANDOM % images));
 link=$(echo "$response" | jq ".backgrounds[$randomIndex].url" -r)
 ext=$(echo "$link" | awk -F. '{print $NF}')
 downloadPath="$PICTURES_DIR/Wallpapers/random_wallpaper.$ext"
-illogicalImpulseConfigPath="$HOME/.config/illogical-impulse/config.json"
-currentWallpaperPath=$(jq -r '.background.wallpaperPath' $illogicalImpulseConfigPath)
+rainConfigPath="$HOME/.config/rain/config.json"
+currentWallpaperPath=$(jq -r '.background.wallpaperPath' $rainConfigPath)
 if [ "$downloadPath" == "$currentWallpaperPath" ]; then
     downloadPath="$PICTURES_DIR/Wallpapers/random_wallpaper-1.$ext"
 fi

@@ -87,9 +87,9 @@ Rectangle {
     function configPathsFor(s) {
         var base = Quickshell.env("XDG_CONFIG_HOME") || (Quickshell.env("HOME") + "/.config");
         var hypr = base + "/hypr";
-        var ryoku = base + "/ryoku";
+        var rain = base + "/rain";
         switch (s) {
-        case "shell":       return [ryoku + "/shell.json"];
+        case "shell":       return [rain + "/shell.json"];
         case "autostart":   return [hypr + "/custom/execs.lua", hypr + "/custom/keybinds.lua"];
         default:            return [];
         }

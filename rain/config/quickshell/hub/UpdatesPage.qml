@@ -69,8 +69,8 @@ Item {
     property string promptTitle: ""
     property string promptDetail: ""
     property var promptOptions: []
-    readonly property string statePath: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/ryoku-update.json"
-    readonly property string answerPath: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/ryoku-update-answer"
+    readonly property string statePath: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/rain-update.json"
+    readonly property string answerPath: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/rain-update-answer"
 
     FileView {
         id: stateFile

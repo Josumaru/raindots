@@ -8,7 +8,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell.Services.Mpris
 
-import qs.modules.ii.bar as Bar
+import qs.modules.rain.bar as Bar
 
 MouseArea {
     id: root

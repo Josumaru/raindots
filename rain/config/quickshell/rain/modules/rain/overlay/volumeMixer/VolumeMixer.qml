@@ -5,8 +5,8 @@ import Quickshell
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
-import qs.modules.ii.overlay
-import qs.modules.ii.sidebarRight.volumeMixer
+import qs.modules.rain.overlay
+import qs.modules.rain.sidebarRight.volumeMixer
 
 StyledOverlayWidget {
     id: root

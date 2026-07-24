@@ -4,7 +4,7 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("awww-daemon")
     hl.exec_cmd("~/.local/bin/rain shell")
     hl.exec_cmd("$HOME/.config/hypr/custom/scripts/__restore_video_wallpaper.sh")
-    hl.exec_cmd([[sleep 3 && WALL=$(jq -r '.background.wallpaperPath' $HOME/.config/illogical-impulse/config.json); if ! echo "$WALL" | grep -qiE '\.(mp4|mkv|mov|webm|avi)$'; then awww img --transition-type center --transition-duration 0.6 --transition-fps 60 "$WALL"; fi]])
+    hl.exec_cmd([[sleep 3 && WALL=$(jq -r '.background.wallpaperPath' $HOME/.config/rain/config.json); if ! echo "$WALL" | grep -qiE '\.(mp4|mkv|mov|webm|avi)$'; then awww img --transition-type center --transition-duration 0.6 --transition-fps 60 "$WALL"; fi]])
 
     -- Core components
     hl.exec_cmd("gnome-keyring-daemon --start --components=secrets")

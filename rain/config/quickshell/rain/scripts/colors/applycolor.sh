@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-QUICKSHELL_CONFIG_NAME="ii"
+QUICKSHELL_CONFIG_NAME="rain"
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
@@ -79,7 +79,7 @@ apply_term() {
 }
 
 # Check if terminal theming is enabled in config
-CONFIG_FILE="$XDG_CONFIG_HOME/illogical-impulse/config.json"
+CONFIG_FILE="$XDG_CONFIG_HOME/rain/config.json"
 if [ -f "$CONFIG_FILE" ]; then
   enable_terminal=$(jq -r '.appearance.wallpaperTheming.enableTerminal' "$CONFIG_FILE")
   if [ "$enable_terminal" = "true" ]; then

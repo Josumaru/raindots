@@ -3,7 +3,7 @@ import QtQuick
 import Quickshell
 
 // Ryoku Settings palette: Greek-noir with one vermillion accent.
-// Matches ryoku-arch hub Theme.qml.
+// Matches rain hub Theme.qml.
 QtObject {
     readonly property color brand:     "#e2342a"
     readonly property color ember:     "#e83b30"

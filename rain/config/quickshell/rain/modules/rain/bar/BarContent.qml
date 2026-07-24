@@ -1,4 +1,4 @@
-import qs.modules.ii.bar.weather
+import qs.modules.rain.bar.weather
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -353,14 +353,14 @@ Item { // Bar content region
                     }
                     Icon {
                         name: Network.materialSymbol
-                        size: Appearance.font.pixelSize.larger
+                        size: Appearance.font.pixelSize.small
                         tint: rightSidebarButton.colText
                     }
                     Icon {
                         Layout.leftMargin: indicatorsRowLayout.realSpacing
                         visible: BluetoothStatus.available
                         name: "bluetooth"
-                        size: Appearance.font.pixelSize.larger
+                        size: Appearance.font.pixelSize.small
                         tint: rightSidebarButton.colText
                     }
                 }

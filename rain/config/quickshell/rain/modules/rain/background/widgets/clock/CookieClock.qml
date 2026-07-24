@@ -9,8 +9,8 @@ import QtQuick.Layouts
 import Qt5Compat.GraphicalEffects
 import Quickshell.Io
 
-import qs.modules.ii.background.widgets.clock.dateIndicator
-import qs.modules.ii.background.widgets.clock.minuteMarks
+import qs.modules.rain.background.widgets.clock.dateIndicator
+import qs.modules.rain.background.widgets.clock.minuteMarks
 
 Item {
     id: root

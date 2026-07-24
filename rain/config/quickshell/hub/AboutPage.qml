@@ -105,22 +105,22 @@ Item {
 
                     HubButton {
                         label: "Documentation"; icon: "folder"
-                        onClicked: Qt.openUrlExternally("https://github.com/illogical-impulse/raindots")
+                        onClicked: Qt.openUrlExternally("https://github.com/rain/raindots")
                     }
 
                     HubButton {
                         label: "Help & Support"; icon: "users"
-                        onClicked: Qt.openUrlExternally("https://github.com/illogical-impulse/raindots/issues")
+                        onClicked: Qt.openUrlExternally("https://github.com/rain/raindots/issues")
                     }
 
                     HubButton {
                         label: "Report a Bug"; icon: "wrench"
-                        onClicked: Qt.openUrlExternally("https://github.com/illogical-impulse/raindots/issues/new")
+                        onClicked: Qt.openUrlExternally("https://github.com/rain/raindots/issues/new")
                     }
 
                     HubButton {
                         label: "Privacy"; icon: "lock"
-                        onClicked: Qt.openUrlExternally("https://github.com/illogical-impulse/raindots")
+                        onClicked: Qt.openUrlExternally("https://github.com/rain/raindots")
                     }
                 }
             }
@@ -156,7 +156,7 @@ Item {
                         }
 
                         Text {
-                            text: "illogical-impulse/raindots"
+                            text: "rain/raindots"
                             color: Theme.ember
                             font.family: Theme.mono
                             font.pixelSize: 12
@@ -169,12 +169,12 @@ Item {
 
                     HubButton {
                         label: "Star on GitHub"; icon: "star"; primary: true
-                        onClicked: Qt.openUrlExternally("https://github.com/illogical-impulse/raindots")
+                        onClicked: Qt.openUrlExternally("https://github.com/rain/raindots")
                     }
 
                     HubButton {
                         label: "Fork the project"; icon: "compass"
-                        onClicked: Qt.openUrlExternally("https://github.com/illogical-impulse/raindots/fork")
+                        onClicked: Qt.openUrlExternally("https://github.com/rain/raindots/fork")
                     }
                 }
             }

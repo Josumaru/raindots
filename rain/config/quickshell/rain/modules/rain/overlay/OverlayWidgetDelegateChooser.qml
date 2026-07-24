@@ -6,13 +6,13 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Bluetooth
-import qs.modules.ii.overlay.crosshair
-import qs.modules.ii.overlay.volumeMixer
-import qs.modules.ii.overlay.floatingImage
-import qs.modules.ii.overlay.fpsLimiter
-import qs.modules.ii.overlay.recorder
-import qs.modules.ii.overlay.resources
-import qs.modules.ii.overlay.notes
+import qs.modules.rain.overlay.crosshair
+import qs.modules.rain.overlay.volumeMixer
+import qs.modules.rain.overlay.floatingImage
+import qs.modules.rain.overlay.fpsLimiter
+import qs.modules.rain.overlay.recorder
+import qs.modules.rain.overlay.resources
+import qs.modules.rain.overlay.notes
 
 DelegateChooser {
     id: root

@@ -57,17 +57,17 @@ func hyprConfigDir() string {
 	return filepath.Join(base, "hypr")
 }
 
-func ryokuConfigDir() string {
+func rainConfigDir() string {
 	base := os.Getenv("XDG_CONFIG_HOME")
 	if base == "" {
 		base = filepath.Join(os.Getenv("HOME"), ".config")
 	}
-	return filepath.Join(base, "ryoku")
+	return filepath.Join(base, "rain")
 }
 
-func themesDir() string         { return filepath.Join(hyprConfigDir(), "themes") }
-func themeStatePath() string    { return filepath.Join(ryokuConfigDir(), "theme.json") }
-func generatedLuaPath() string  { return filepath.Join(hyprConfigDir(), "settings.lua") }
+func themesDir() string        { return filepath.Join(hyprConfigDir(), "themes") }
+func themeStatePath() string   { return filepath.Join(rainConfigDir(), "theme.json") }
+func generatedLuaPath() string { return filepath.Join(hyprConfigDir(), "settings.lua") }
 
 func wallustCacheDir() string {
 	base := os.Getenv("XDG_CACHE_HOME")
@@ -598,84 +598,84 @@ func parseKeybinds(cats []map[string]any) error {
 // --- HyprDoc used by the settings backend --------------------------------------
 
 type HyprDoc struct {
-	Appearance HyprAppearance `json:"appearance"`
-	Input      HyprInput      `json:"input"`
-	Cursor     HyprCursor     `json:"cursor"`
-	Env        []any          `json:"env"`
-	WindowRules []any         `json:"windowRules"`
-	LayerRules  []any         `json:"layerRules"`
-	Autostart  []HyprAutostart `json:"autostart"`
-	Keybinds   []HyprKeybind   `json:"keybinds"`
-	Anim       HyprAnim        `json:"anim"`
+	Appearance  HyprAppearance  `json:"appearance"`
+	Input       HyprInput       `json:"input"`
+	Cursor      HyprCursor      `json:"cursor"`
+	Env         []any           `json:"env"`
+	WindowRules []any           `json:"windowRules"`
+	LayerRules  []any           `json:"layerRules"`
+	Autostart   []HyprAutostart `json:"autostart"`
+	Keybinds    []HyprKeybind   `json:"keybinds"`
+	Anim        HyprAnim        `json:"anim"`
 }
 
 type HyprAppearance struct {
-	GapsIn          int     `json:"gapsIn"`
-	GapsOut         int     `json:"gapsOut"`
-	BorderSize      int     `json:"borderSize"`
-	Rounding        int     `json:"rounding"`
-	RoundingPower   float64 `json:"roundingPower"`
-	ActiveOpacity   float64 `json:"activeOpacity"`
-	InactiveOpacity float64 `json:"inactiveOpacity"`
-	DimInactive     bool    `json:"dimInactive"`
-	DimStrength     float64 `json:"dimStrength"`
-	BlurEnabled     bool    `json:"blurEnabled"`
-	BlurSize        int     `json:"blurSize"`
-	BlurPasses      int     `json:"blurPasses"`
-	BlurXray        bool    `json:"blurXray"`
-	BlurVibrancy    float64 `json:"blurVibrancy"`
-	BlurNoise       float64 `json:"blurNoise"`
-	ShadowEnabled   bool    `json:"shadowEnabled"`
-	ShadowRange     int     `json:"shadowRange"`
-	ShadowPower     int     `json:"shadowPower"`
-	GlowEnabled     bool    `json:"glowEnabled"`
-	GlowRange       int     `json:"glowRange"`
-	GlowColor       string  `json:"glowColor"`
-	Animations      bool    `json:"animations"`
-	Layout          string  `json:"layout"`
-	ActiveBorder    string  `json:"activeBorder"`
-	InactiveBorder  string  `json:"inactiveBorder"`
-	ResizeOnBorder  bool    `json:"resizeOnBorder"`
-	SnapEnabled     bool    `json:"snapEnabled"`
-	WobblyWindows   bool    `json:"wobblyWindows"`
-	WindowStyle     string  `json:"windowStyle"`
-	AnimatedBorder  bool    `json:"animatedBorder"`
+	GapsIn           int     `json:"gapsIn"`
+	GapsOut          int     `json:"gapsOut"`
+	BorderSize       int     `json:"borderSize"`
+	Rounding         int     `json:"rounding"`
+	RoundingPower    float64 `json:"roundingPower"`
+	ActiveOpacity    float64 `json:"activeOpacity"`
+	InactiveOpacity  float64 `json:"inactiveOpacity"`
+	DimInactive      bool    `json:"dimInactive"`
+	DimStrength      float64 `json:"dimStrength"`
+	BlurEnabled      bool    `json:"blurEnabled"`
+	BlurSize         int     `json:"blurSize"`
+	BlurPasses       int     `json:"blurPasses"`
+	BlurXray         bool    `json:"blurXray"`
+	BlurVibrancy     float64 `json:"blurVibrancy"`
+	BlurNoise        float64 `json:"blurNoise"`
+	ShadowEnabled    bool    `json:"shadowEnabled"`
+	ShadowRange      int     `json:"shadowRange"`
+	ShadowPower      int     `json:"shadowPower"`
+	GlowEnabled      bool    `json:"glowEnabled"`
+	GlowRange        int     `json:"glowRange"`
+	GlowColor        string  `json:"glowColor"`
+	Animations       bool    `json:"animations"`
+	Layout           string  `json:"layout"`
+	ActiveBorder     string  `json:"activeBorder"`
+	InactiveBorder   string  `json:"inactiveBorder"`
+	ResizeOnBorder   bool    `json:"resizeOnBorder"`
+	SnapEnabled      bool    `json:"snapEnabled"`
+	WobblyWindows    bool    `json:"wobblyWindows"`
+	WindowStyle      string  `json:"windowStyle"`
+	AnimatedBorder   bool    `json:"animatedBorder"`
 	BorderAngleSpeed float64 `json:"borderAngleSpeed"`
 }
 
 type HyprInput struct {
-	KbLayout          string  `json:"kbLayout"`
-	KbVariant         string  `json:"kbVariant"`
-	KbOptions         string  `json:"kbOptions"`
-	NumlockByDefault  bool    `json:"numlockByDefault"`
-	FollowMouse       int     `json:"followMouse"`
-	Sensitivity       float64 `json:"sensitivity"`
-	AccelProfile      string  `json:"accelProfile"`
-	LeftHanded        bool    `json:"leftHanded"`
-	MouseNaturalScroll bool   `json:"mouseNaturalScroll"`
-	MouseScrollFactor float64 `json:"mouseScrollFactor"`
-	MiddleClickPaste  bool    `json:"middleClickPaste"`
-	NaturalScroll     bool    `json:"naturalScroll"`
-	TapToClick        bool    `json:"tapToClick"`
-	TapAndDrag        bool    `json:"tapAndDrag"`
-	Clickfinger       bool    `json:"clickfinger"`
-	MiddleEmulation   bool    `json:"middleEmulation"`
-	TouchScrollFactor float64 `json:"touchScrollFactor"`
-	DisableWhileTyping bool   `json:"disableWhileTyping"`
-	RepeatRate        int     `json:"repeatRate"`
-	RepeatDelay       int     `json:"repeatDelay"`
-	WorkspaceSwipe    bool    `json:"workspaceSwipe"`
-	SwipeFingers      int     `json:"swipeFingers"`
-	SwipeInvert       bool    `json:"swipeInvert"`
-	SwipeCreateNew    bool    `json:"swipeCreateNew"`
-	SwipeDistance     int     `json:"swipeDistance"`
+	KbLayout           string  `json:"kbLayout"`
+	KbVariant          string  `json:"kbVariant"`
+	KbOptions          string  `json:"kbOptions"`
+	NumlockByDefault   bool    `json:"numlockByDefault"`
+	FollowMouse        int     `json:"followMouse"`
+	Sensitivity        float64 `json:"sensitivity"`
+	AccelProfile       string  `json:"accelProfile"`
+	LeftHanded         bool    `json:"leftHanded"`
+	MouseNaturalScroll bool    `json:"mouseNaturalScroll"`
+	MouseScrollFactor  float64 `json:"mouseScrollFactor"`
+	MiddleClickPaste   bool    `json:"middleClickPaste"`
+	NaturalScroll      bool    `json:"naturalScroll"`
+	TapToClick         bool    `json:"tapToClick"`
+	TapAndDrag         bool    `json:"tapAndDrag"`
+	Clickfinger        bool    `json:"clickfinger"`
+	MiddleEmulation    bool    `json:"middleEmulation"`
+	TouchScrollFactor  float64 `json:"touchScrollFactor"`
+	DisableWhileTyping bool    `json:"disableWhileTyping"`
+	RepeatRate         int     `json:"repeatRate"`
+	RepeatDelay        int     `json:"repeatDelay"`
+	WorkspaceSwipe     bool    `json:"workspaceSwipe"`
+	SwipeFingers       int     `json:"swipeFingers"`
+	SwipeInvert        bool    `json:"swipeInvert"`
+	SwipeCreateNew     bool    `json:"swipeCreateNew"`
+	SwipeDistance      int     `json:"swipeDistance"`
 }
 
 type HyprCursor struct {
-	Theme            string `json:"theme"`
-	Size             int    `json:"size"`
-	InactiveTimeout  int    `json:"inactiveTimeout"`
-	HideOnKeyPress   bool   `json:"hideOnKeyPress"`
+	Theme           string `json:"theme"`
+	Size            int    `json:"size"`
+	InactiveTimeout int    `json:"inactiveTimeout"`
+	HideOnKeyPress  bool   `json:"hideOnKeyPress"`
 }
 
 type HyprAutostart struct {
@@ -719,12 +719,12 @@ func defaultHyprDoc() HyprDoc {
 		Cursor: HyprCursor{
 			Theme: "Bibata-Modern-Ice", Size: 24, InactiveTimeout: 0, HideOnKeyPress: false,
 		},
-		Env:        []any{},
+		Env:         []any{},
 		WindowRules: []any{},
 		LayerRules:  []any{},
-		Autostart:  []HyprAutostart{},
-		Keybinds:   []HyprKeybind{},
-		Anim:       HyprAnim{Items: []any{}, Curves: []any{}},
+		Autostart:   []HyprAutostart{},
+		Keybinds:    []HyprKeybind{},
+		Anim:        HyprAnim{Items: []any{}, Curves: []any{}},
 	}
 }
 

@@ -24,7 +24,7 @@ raindots/
 │   │   │   └── hyprland.lua    # entry point
 │   │   └── quickshell/
 │   │       └── rain/       # named config: quickshell -c rain
-│   │           ├── shell.qml       # entry point (ii-style ShellRoot)
+│   │           ├── shell.qml       # entry point (rain-style ShellRoot)
 │   │           ├── GlobalStates.qml     # shared toggle states (bar, sidebar, lock, etc.)
 │   │           ├── ReloadPopup.qml      # reload success/fail popup
 │   │           ├── welcome.qml          # first-run welcome app
@@ -37,11 +37,11 @@ raindots/
 │   │           ├── defaults/            # default AI prompts
 │   │           ├── panelFamilies/
 │   │           │   ├── PanelLoader.qml  # LazyLoader wrapper (checks Config.ready)
-│   │           │   └── RainFamily.qml   # Scope loading all ii modules
+│   │           │   └── RainFamily.qml   # Scope loading all rain modules
 │   │           ├── services/            # 48+ services (Audio, Battery, Network, Notifications, Ai, etc.)
 │   │           ├── modules/
 │   │           │   ├── common/          # shared widgets, functions, models, panels
-│   │           │   ├── ii/              # ii panel family modules (21 subdirectories)
+│   │           │   ├── rain/            # rain panel family modules (21 subdirectories)
 │   │           │   │   ├── bar/         # pill bar (workspaces, media, clock, battery, sys tray, etc.)
 │   │           │   │   ├── background/  # wallpaper background
 │   │           │   │   ├── lock/        # lock screen (PAM auth, fingerprint)
@@ -71,7 +71,7 @@ raindots/
 │   ├── hub/                # settings hub QML
 │   └── bin/                # → ~/.config/rain/bin (rain CLI binary)
 ├── docs/                   # personal notes
-└── references/             # read-only reference projects (ii, ryoku-arch, etc.)
+└── references/             # read-only reference projects (n-arch, etc.)
 ```
 
 ## Key patterns
@@ -142,7 +142,7 @@ The `rain` binary (`rain/bin/rain`) is a Go CLI that controls Hyprland & Quicksh
 | `rain hub hypr cursors` | List cursor themes |
 | `rain log` | Follow quickshell logs |
 
-## Panel families (ii-style)
+## Panel families
 
 `shell.qml` uses `PanelFamilyLoader` (a `LazyLoader` wrapper) that activates when `Config.ready && panelFamily === identifier`:
 
@@ -154,12 +154,12 @@ component PanelFamilyLoader: LazyLoader {
 }
 
 PanelFamilyLoader {
-    identifier: "ii"
+    identifier: "rain"
     component: RainFamily {}
 }
 ```
 
-`RainFamily.qml` is a `Scope` containing all ii modules as `PanelLoader` instances:
+`RainFamily.qml` is a `Scope` containing all rain modules as `PanelLoader` instances:
 
 ```qml
 PanelLoader { extraCondition: !Config.options.bar.vertical; component: Bar {} }
@@ -174,7 +174,7 @@ To add a new panel family, create `FooFamily.qml` in `panelFamilies/` and add a 
 
 ## IPC handlers
 
-Each ii module registers its own `IpcHandler` with a target matching its name. The CLI dispatches via `qs -c rain ipc call <target> <function>`. Module-level handlers:
+Each rain module registers its own `IpcHandler` with a target matching its name. The CLI dispatches via `qs -c rain ipc call <target> <function>`. Module-level handlers:
 
 | Target | Functions | Module |
 |---|---|---|
@@ -193,9 +193,9 @@ Each ii module registers its own `IpcHandler` with a target matching its name. T
 | `wallpaperPicker` | toggle | wallpaperPickerLauncher/WallpaperPickerLauncher.qml |
 | `wallpaperSelector` | toggle | wallpaperSelector/WallpaperSelector.qml |
 
-## Bar Components (ii pill bar)
+## Bar Components
 
-The pill bar (`modules/ii/bar/Bar.qml`) provides:
+The pill bar (`modules/rain/bar/Bar.qml`) provides:
 - **Workspaces** — scrollable, app icons, numbered/lettered Japanese labels
 - **Active window** — window title display
 - **Clock** — time with popup calendar/todo
@@ -212,7 +212,7 @@ The pill bar (`modules/ii/bar/Bar.qml`) provides:
 
 ## Icons
 
-This shell uses the ii icon system:
+This shell uses the rain icon system:
 - **Fluent UI SVG icons** at `assets/icons/fluent/` (231 icons)
 - **Symbolic SVG icons** at `assets/icons/` (distro logos, AI, etc.)
 - **`qs.modules.common.widgets`** provides `MaterialSymbol` for Material Symbols font

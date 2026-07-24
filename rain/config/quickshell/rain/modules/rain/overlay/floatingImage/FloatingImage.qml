@@ -5,7 +5,7 @@ import Qt5Compat.GraphicalEffects
 import qs.modules.common
 import qs.modules.common.functions
 import qs.modules.common.utils
-import qs.modules.ii.overlay
+import qs.modules.rain.overlay
 
 StyledOverlayWidget {
     id: root

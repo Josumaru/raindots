@@ -9,13 +9,13 @@ import Quickshell
 import Quickshell.Bluetooth
 import Quickshell.Hyprland
 
-import qs.modules.ii.sidebarRight.quickToggles
-import qs.modules.ii.sidebarRight.quickToggles.classicStyle
+import qs.modules.rain.sidebarRight.quickToggles
+import qs.modules.rain.sidebarRight.quickToggles.classicStyle
 
-import qs.modules.ii.sidebarRight.bluetoothDevices
-import qs.modules.ii.sidebarRight.nightLight
-import qs.modules.ii.sidebarRight.volumeMixer
-import qs.modules.ii.sidebarRight.wifiNetworks
+import qs.modules.rain.sidebarRight.bluetoothDevices
+import qs.modules.rain.sidebarRight.nightLight
+import qs.modules.rain.sidebarRight.volumeMixer
+import qs.modules.rain.sidebarRight.wifiNetworks
 
 Item {
     id: root

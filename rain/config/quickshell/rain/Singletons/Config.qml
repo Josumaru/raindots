@@ -3,7 +3,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 
-// live shell config: reads ~/.config/ryoku/shell.json, watched for changes.
+// live shell config: reads ~/.config/rain/shell.json, watched for changes.
 // the hub's ShellSettingsPage writes this file; the bar reacts live.
 Item {
     id: root
@@ -35,7 +35,7 @@ Item {
 
     FileView {
         id: file
-        path: (Quickshell.env("XDG_CONFIG_HOME") || (Quickshell.env("HOME") + "/.config")) + "/ryoku/shell.json"
+        path: (Quickshell.env("XDG_CONFIG_HOME") || (Quickshell.env("HOME") + "/.config")) + "/rain/shell.json"
         blockLoading: true
         watchChanges: true
         printErrors: false
@@ -68,7 +68,7 @@ Item {
 
     FileView {
         id: themeFile
-        path: (Quickshell.env("XDG_CONFIG_HOME") || (Quickshell.env("HOME") + "/.config")) + "/ryoku/theme.json"
+        path: (Quickshell.env("XDG_CONFIG_HOME") || (Quickshell.env("HOME") + "/.config")) + "/rain/theme.json"
         blockLoading: true
         watchChanges: true
         printErrors: false

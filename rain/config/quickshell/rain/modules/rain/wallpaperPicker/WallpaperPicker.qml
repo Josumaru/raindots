@@ -23,7 +23,7 @@ Item {
 
     Process {
         id: configReader
-        command: ["bash", "-c", "jq -r '.background.wallpaperPath // \"\"' ${XDG_CONFIG_HOME:-$HOME/.config}/illogical-impulse/config.json"]
+        command: ["bash", "-c", "jq -r '.background.wallpaperPath // \"\"' ${XDG_CONFIG_HOME:-$HOME/.config}/rain/config.json"]
         stdout: StdioCollector {
             onStreamFinished: {
                 var path = text.trim();
@@ -166,7 +166,7 @@ Item {
 
         // Save to config for next picker launch
         Quickshell.execDetached(["bash", "-c",
-            `CONFIG="\${XDG_CONFIG_HOME:-\$HOME/.config}/illogical-impulse/config.json"; ` +
+            `CONFIG="\${XDG_CONFIG_HOME:-\$HOME/.config}/rain/config.json"; ` +
             `mkdir -p "$(dirname "$CONFIG")"; ` +
             `if [ -f "$CONFIG" ]; then ` +
             `  jq --arg p "${originalFile}" '.background.wallpaperPath = $p' "$CONFIG" > "$CONFIG.tmp" && mv "$CONFIG.tmp" "$CONFIG"; ` +
@@ -175,8 +175,7 @@ Item {
             `fi`
         ]);
 
-        // Theme via IPC if shell is running (try both ii and rain configs)
-        Quickshell.execDetached(["qs", "-c", "ii", "ipc", "call", "wallpapers", "apply", originalFile]);
+        // Theme via IPC if shell is running
         Quickshell.execDetached(["qs", "-c", "rain", "ipc", "call", "wallpapers", "apply", originalFile]);
         window.requestClose();
     }
