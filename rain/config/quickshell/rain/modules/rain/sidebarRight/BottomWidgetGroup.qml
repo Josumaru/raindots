@@ -24,18 +24,18 @@ Rectangle {
             "icon": "calendar",
             "widget": "calendar/CalendarWidget.qml"
         },
-        {
-            "type": "todo",
-            "name": Translation.tr("To Do"),
-            "icon": "check",
-            "widget": "todo/TodoWidget.qml"
-        },
-        {
-            "type": "timer",
-            "name": Translation.tr("Timer"),
-            "icon": "clock",
-            "widget": "pomodoro/PomodoroWidget.qml"
-        },
+        // {
+        //     "type": "todo",
+        //     "name": Translation.tr("To Do"),
+        //     "icon": "check",
+        //     "widget": "todo/TodoWidget.qml"
+        // },
+        // {
+        //     "type": "timer",
+        //     "name": Translation.tr("Timer"),
+        //     "icon": "clock",
+        //     "widget": "pomodoro/PomodoroWidget.qml"
+        // },
     ]
 
     Behavior on implicitHeight {
@@ -114,7 +114,8 @@ Rectangle {
             Layout.margins: 10
             Layout.leftMargin: 0
             // text: `${DateTime.collapsedCalendarFormat}   •   ${remainingTasks} task${remainingTasks > 1 ? "s" : ""}`
-            text: Translation.tr("%1   •   %2 tasks").arg(DateTime.collapsedCalendarFormat).arg(remainingTasks)
+            // text: Translation.tr("%1   •   %2 tasks").arg(DateTime.collapsedCalendarFormat).arg(remainingTasks)
+            text: Translation.tr("%1").arg(DateTime.collapsedCalendarFormat)
             font.pixelSize: Appearance.font.pixelSize.large
             color: Appearance.colors.colOnLayer1
         }
@@ -147,29 +148,29 @@ Rectangle {
             Layout.topMargin: 10
             implicitWidth: tabBar.implicitWidth
             // Navigation rail buttons
-            NavigationRailTabArray {
-                id: tabBar
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.left: parent.left
-                anchors.leftMargin: 5
-                currentIndex: root.selectedTab
-                expanded: false
-                Repeater {
-                    model: root.tabs
-                    NavigationRailButton {
-                        required property int index
-                        required property var modelData
-                        showToggledHighlight: false
-                        toggled: root.selectedTab == index
-                        buttonText: modelData.name
-                        buttonIcon: modelData.icon
-                        onPressed: {
-                            root.selectedTab = index;
-                            Persistent.states.sidebar.bottomGroup.tab = index;
-                        }
-                    }
-                }
-            }
+            // NavigationRailTabArray {
+            //     id: tabBar
+            //     anchors.verticalCenter: parent.verticalCenter
+            //     anchors.left: parent.left
+            //     anchors.leftMargin: 5
+            //     currentIndex: root.selectedTab
+            //     expanded: false
+            //     Repeater {
+            //         model: root.tabs
+            //         NavigationRailButton {
+            //             required property int index
+            //             required property var modelData
+            //             showToggledHighlight: false
+            //             toggled: root.selectedTab == index
+            //             buttonText: modelData.name
+            //             buttonIcon: modelData.icon
+            //             onPressed: {
+            //                 root.selectedTab = index;
+            //                 Persistent.states.sidebar.bottomGroup.tab = index;
+            //             }
+            //         }
+            //     }
+            // }
             // Collapse button
             CalendarHeaderButton {
                 anchors.left: parent.left

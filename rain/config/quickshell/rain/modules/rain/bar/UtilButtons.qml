@@ -41,7 +41,7 @@ Item {
                 Layout.alignment: Qt.AlignVCenter
                 onClicked: Quickshell.execDetached([Directories.recordScriptPath])
                 Icon {
-                    name: "camera"
+                name: "video"
                     size: Appearance.font.pixelSize.large
                     tint: Appearance.colors.colOnLayer2
                 }

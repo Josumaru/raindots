@@ -10,7 +10,7 @@ QuickToggleModel {
     name: Translation.tr("Color picker")
     hasStatusText: false
     toggled: false
-    icon: "colorize"
+    icon: "palette"
 
     mainAction: () => {
         GlobalStates.sidebarRightOpen = false;

@@ -525,7 +525,7 @@ Singleton {
                 }
 
                 property JsonObject quickToggles: JsonObject {
-                    property string style: "android" // Options: classic, android
+                    property string style: "hybrid" // Options: classic, android, hybrid
                     property JsonObject android: JsonObject {
                         property int columns: 5
                         property list<var> toggles: [
@@ -563,7 +563,7 @@ Singleton {
             }
 
             property JsonObject screenSnip: JsonObject {
-                property string savePath: "" // only copy to clipboard when empty
+                property string savePath: (Directories.pictures + "/Screenshots").replace("file://", "")
             }
 
             property JsonObject sounds: JsonObject {

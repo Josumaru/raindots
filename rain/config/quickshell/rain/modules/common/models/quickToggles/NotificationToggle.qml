@@ -10,7 +10,7 @@ QuickToggleModel {
     name: Translation.tr("Notifications")
     statusText: toggled ? Translation.tr("Show") : Translation.tr("Silent")
     toggled: !Notifications.silent
-    icon: toggled ? "notifications_active" : "notifications_paused"
+    icon: toggled ? "notifications" : "notifications"
 
     mainAction: () => {
         Notifications.silent = !Notifications.silent;

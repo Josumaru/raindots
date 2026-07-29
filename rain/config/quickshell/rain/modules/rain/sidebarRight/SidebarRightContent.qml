@@ -96,6 +96,13 @@ Item {
                 }
             }
 
+            LoaderedQuickPanelImplementation {
+                styleName: "hybrid"
+                sourceComponent: HybridQuickPanel {
+                    editMode: root.editMode
+                }
+            }
+
             CenterWidgetGroup {
                 Layout.alignment: Qt.AlignHCenter
                 Layout.fillHeight: true
@@ -257,7 +264,7 @@ Item {
 
             QuickToggleButton {
                 toggled: root.editMode
-                visible: Config.options.sidebar.quickToggles.style === "android"
+                visible: Config.options.sidebar.quickToggles.style === "android" || Config.options.sidebar.quickToggles.style === "hybrid"
                 buttonIcon: "edit"
                 onClicked: root.editMode = !root.editMode
                 StyledToolTip {

@@ -112,6 +112,14 @@ func buildItems(f *facts, p *plan) []planItem {
 
 	it = append(it, planItem{"Google Sans Flex font", "installs the default UI font", &p.font, false})
 
+	if !f.hasHyprglass {
+		it = append(it, planItem{
+			"Install hyprglass plugin",
+			"downloads hyprglass.so from GitHub releases",
+			&p.plugin, false,
+		})
+	}
+
 	return it
 }
 

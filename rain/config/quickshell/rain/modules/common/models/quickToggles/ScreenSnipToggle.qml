@@ -10,7 +10,7 @@ QuickToggleModel {
     name: Translation.tr("Screen snip")
     hasStatusText: false
     toggled: false
-    icon: "screenshot_region"
+    icon: "camera"
 
     mainAction: () => {
         GlobalStates.sidebarRightOpen = false;

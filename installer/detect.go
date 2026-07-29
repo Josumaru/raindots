@@ -23,6 +23,7 @@ type facts struct {
 	hasHyprland   bool
 	hasQuickshell bool
 	hasGit        bool
+	hasHyprglass  bool
 
 	symlinksOk    bool
 	rainInstalled bool
@@ -81,6 +82,11 @@ func detect() *facts {
 	f.hasHyprland = has("Hyprland")
 	f.hasQuickshell = has("quickshell")
 	f.hasGit = has("git")
+
+	pluginPath := filepath.Join(cfg, "hypr", "hyprland", "plugin", "hyprglass", "hyprglass.so")
+	if _, err := os.Stat(pluginPath); err == nil {
+		f.hasHyprglass = true
+	}
 
 	// Check if symlinks point to the repo
 	repo := findRepo()

@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -18,6 +19,7 @@ type plan struct {
 	build   bool
 	font    bool
 	deps    bool
+	plugin  bool
 }
 
 func defaultPlan(f *facts) *plan {
@@ -27,6 +29,7 @@ func defaultPlan(f *facts) *plan {
 		build:   true,
 		font:    true,
 		deps:    f.needsDeps(),
+		plugin:  !f.hasHyprglass,
 	}
 }
 
@@ -85,6 +88,7 @@ func newEngine(f *facts, p *plan, dry bool) *engine {
 		{"backup", "Backing up existing configs", stepBackup},
 		{"deps", "Checking system dependencies", stepDeps},
 		{"symlink", "Symlinking configs", stepSymlink},
+		{"plugin", "Installing hyprglass plugin", stepPlugin},
 		{"build", "Building rain CLI", stepBuild},
 		{"font", "Installing Google Sans Flex font", stepFont},
 		{"verify", "Verifying installation", stepVerify},
@@ -564,6 +568,51 @@ func stepFont(e *engine) error {
 	exec.Command("fc-cache", "-fv").Run()
 	e.say("updated font cache")
 
+	return nil
+}
+
+func stepPlugin(e *engine) error {
+	pluginDir := filepath.Join(e.f.homeDir, ".config", "hypr", "hyprland", "plugin", "hyprglass")
+	pluginPath := filepath.Join(pluginDir, "hyprglass.so")
+
+	if _, err := os.Stat(pluginPath); err == nil {
+		e.say("hyprglass.so already installed")
+		return nil
+	}
+
+	e.say("downloading hyprglass plugin...")
+	if e.dry {
+		e.say("DRYRUN: download hyprglass.so from GitHub releases")
+		return nil
+	}
+
+	if err := os.MkdirAll(pluginDir, 0o755); err != nil {
+		return fmt.Errorf("create plugin directory: %w", err)
+	}
+
+	url := "https://github.com/hyprnux/hyprglass/releases/download/v0.6.4/hyprglass.so"
+	resp, err := http.Get(url)
+	if err != nil {
+		return fmt.Errorf("download hyprglass.so: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("download hyprglass.so: HTTP %d", resp.StatusCode)
+	}
+
+	f, err := os.Create(pluginPath)
+	if err != nil {
+		return fmt.Errorf("create hyprglass.so: %w", err)
+	}
+	defer f.Close()
+
+	if _, err := io.Copy(f, resp.Body); err != nil {
+		os.Remove(pluginPath)
+		return fmt.Errorf("write hyprglass.so: %w", err)
+	}
+
+	e.say("installed hyprglass.so -> " + pluginPath)
 	return nil
 }
 
