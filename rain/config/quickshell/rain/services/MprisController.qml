@@ -56,22 +56,33 @@ Singleton {
 			}
 
 			Component.onDestruction: {
-				if (root.trackedPlayer == null || !root.trackedPlayer.isPlaying) {
+				if (root.trackedPlayer == null || !root.trackedPlayer.isPlaying || root.trackedPlayer === modelData) {
 					for (const player of Mpris.players.values) {
-						if (player.playbackState.isPlaying) {
+						if (player.isPlaying) {
 							root.trackedPlayer = player;
-							break;
+							return;
 						}
 					}
 
-					if (trackedPlayer == null && Mpris.players.values.length != 0) {
-						trackedPlayer = Mpris.players.values[0];
+					if (Mpris.players.values.length != 0) {
+						root.trackedPlayer = Mpris.players.values[0];
+					} else {
+						root.trackedPlayer = null;
 					}
 				}
 			}
 
 			function onPlaybackStateChanged() {
-				if (root.trackedPlayer !== modelData) root.trackedPlayer = modelData;
+				if (modelData.isPlaying) {
+					root.trackedPlayer = modelData;
+				} else if (root.trackedPlayer === modelData) {
+					for (const player of Mpris.players.values) {
+						if (player !== modelData && player.isPlaying) {
+							root.trackedPlayer = player;
+							return;
+						}
+					}
+				}
 			}
 		}
 	}

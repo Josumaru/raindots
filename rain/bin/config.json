@@ -111,7 +111,7 @@
                     "vertical": false
                 },
                 "enable": true,
-                "placementStrategy": "leastBusy",
+                "placementStrategy": "free",
                 "quote": {
                     "enable": false,
                     "text": ""
@@ -119,8 +119,8 @@
                 "showOnlyWhenLocked": false,
                 "style": "cookie",
                 "styleLocked": "cookie",
-                "x": 100,
-                "y": 100
+                "x": 856.9199585987003,
+                "y": 486.5170670258958
             },
             "weather": {
                 "enable": false,

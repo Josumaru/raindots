@@ -328,7 +328,7 @@ Item { // Bar content region
                             animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
                         }
                         Icon {
-                            name: "mic"
+                            name: "mic_off"
                             size: Appearance.font.pixelSize.larger
                             tint: rightSidebarButton.colText
                         }

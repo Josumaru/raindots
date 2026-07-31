@@ -20,8 +20,23 @@ AbstractWidget {
     property string placementStrategy: configEntry.placementStrategy
     property real targetX: Math.max(0, Math.min(configEntry.x, scaledScreenWidth - width))
     property real targetY : Math.max(0, Math.min(configEntry.y, scaledScreenHeight - height))
-    x: targetX
-    y: targetY
+    property bool isDragging: false
+
+    onPressed: isDragging = true
+    onReleased: {
+        isDragging = false;
+        configEntry.x = root.x;
+        configEntry.y = root.y;
+    }
+
+    Binding on x {
+        value: root.targetX
+        when: !root.isDragging
+    }
+    Binding on y {
+        value: root.targetY
+        when: !root.isDragging
+    }
     visible: opacity > 0
     opacity: (GlobalStates.screenLocked && !visibleWhenLocked) ? 0 : 1
     Behavior on opacity {
@@ -33,12 +48,6 @@ AbstractWidget {
     }
 
     draggable: placementStrategy === "free"
-    onReleased: {
-        root.targetX = root.x;
-        root.targetY = root.y;
-        configEntry.x = root.targetX;
-        configEntry.y = root.targetY;
-    }
 
     property bool needsColText: false
     property color dominantColor: Appearance.colors.colPrimary
