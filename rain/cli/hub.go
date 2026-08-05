@@ -582,10 +582,67 @@ func cmdHubConfig(args []string) error {
 		}
 		cfg := loadHubConfig()
 		cfg[args[1]] = args[2]
-		return saveHubConfig(cfg)
+		if err := saveHubConfig(cfg); err != nil {
+			return err
+		}
+		// Mirror into the live shell config so the change takes effect.
+		return writeShellConfigKey(args[1], args[2])
 	default:
 		return fmt.Errorf("hub config: unknown subcommand %q", args[0])
 	}
+}
+
+// shellConfigPath returns ~/.config/rain/config.json, the shell's live config.
+func shellConfigPath() string {
+	base := os.Getenv("XDG_CONFIG_HOME")
+	if base == "" {
+		base = filepath.Join(os.Getenv("HOME"), ".config")
+	}
+	return filepath.Join(base, "rain", "config.json")
+}
+
+// writeShellConfigKey merges "a.b.c" into the shell config.json so the
+// running shell picks it up via its file watcher.
+func writeShellConfigKey(key, value string) error {
+	if key == "" {
+		return nil
+	}
+	var doc map[string]any
+	if b, err := os.ReadFile(shellConfigPath()); err == nil {
+		_ = json.Unmarshal(b, &doc) // tolerate missing/partial file
+	}
+	if doc == nil {
+		doc = map[string]any{}
+	}
+
+	var v any = value
+	switch value {
+	case "true":
+		v = true
+	case "false":
+		v = false
+	default:
+		if n, err := strconv.ParseFloat(value, 64); err == nil {
+			v = n
+		}
+	}
+
+	keys := strings.Split(key, ".")
+	obj := doc
+	for i := 0; i < len(keys)-1; i++ {
+		next, ok := obj[keys[i]].(map[string]any)
+		if !ok || next == nil {
+			next = map[string]any{}
+			obj[keys[i]] = next
+		}
+		obj = next
+	}
+	obj[keys[len(keys)-1]] = v
+
+	if err := os.MkdirAll(filepath.Dir(shellConfigPath()), 0o755); err != nil {
+		return err
+	}
+	return atomicWrite(shellConfigPath(), mustJSON(doc), 0o644)
 }
 
 func parseKeybinds(cats []map[string]any) error {

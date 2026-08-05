@@ -1,4 +1,11 @@
 {
+  "background.widgets.visualizer.barSpacing": "3",
+  "background.widgets.visualizer.barWidth": "4",
+  "background.widgets.visualizer.direction": "down",
+  "background.widgets.visualizer.enable": "true",
+  "background.widgets.visualizer.maxBarHeight": "405",
+  "background.widgets.visualizer.offset": "4",
+  "background.widgets.visualizer.smoothingDuration": "190",
   "bar.indicators.launcher.showLauncherButton": "true",
   "update_interval": "daily"
 }

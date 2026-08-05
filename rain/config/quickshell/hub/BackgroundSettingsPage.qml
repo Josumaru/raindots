@@ -8,8 +8,42 @@ import "Singletons"
 Item {
     id: page
 
+    // Visualizer (equalizer) live state
+    property bool visualizerEnable: false
+    property string visualizerPosition: "bottom"
+    property string visualizerOrientation: "horizontal"
+    property string visualizerDirection: "up"
+    property real visualizerOffset: 0
+    property real visualizerBarWidth: 6
+    property real visualizerBarSpacing: 10
+    property real visualizerMaxBarHeight: 200
+    property real visualizerSmoothing: 150
+
     function setConfig(k, v) {
         Quickshell.execDetached([Directories.rainBin, "hub", "config", "set", k, String(v)]);
+    }
+
+    Process {
+        id: vizStateProc
+        running: true
+        command: ["cat", Directories.xdgConfig + "/rain/config.json"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    const doc = JSON.parse(this.text);
+                    const viz = doc.background?.widgets?.visualizer;
+                    page.visualizerEnable = !!viz?.enable;
+                    if (viz?.position) page.visualizerPosition = viz.position;
+                    if (viz?.orientation) page.visualizerOrientation = viz.orientation;
+                    if (viz?.direction) page.visualizerDirection = viz.direction;
+                    if (viz?.offset !== undefined) page.visualizerOffset = viz.offset;
+                    if (viz?.barWidth) page.visualizerBarWidth = viz.barWidth;
+                    if (viz?.barSpacing) page.visualizerBarSpacing = viz.barSpacing;
+                    if (viz?.maxBarHeight) page.visualizerMaxBarHeight = viz.maxBarHeight;
+                    if (viz?.smoothingDuration) page.visualizerSmoothing = viz.smoothingDuration;
+                } catch (e) { /* config may not exist yet */ }
+            }
+        }
     }
 
     Flickable {
@@ -221,6 +255,107 @@ Item {
                     ]
                     current: "free"
                     onChosen: (k) => page.setConfig("background.widgets.devices.placementStrategy", k)
+                }
+            }
+
+            SettingSection {
+                width: parent.width; title: "WIDGET: VISUALIZER (EQ)"
+
+                ToggleRow {
+                    width: Math.min(parent.width, 460); label: "Enable equalizer"
+                    checked: page.visualizerEnable
+                    onToggled: (v) => {
+                        page.visualizerEnable = v;
+                        page.setConfig("background.widgets.visualizer.enable", v)
+                    }
+                }
+
+                ChoiceRow {
+                    width: Math.min(parent.width, 460); label: "Position"
+                    options: [
+                        { key: "bottom", label: "Bottom" },
+                        { key: "top", label: "Top" },
+                        { key: "left", label: "Left" },
+                        { key: "right", label: "Right" }
+                    ]
+                    current: page.visualizerPosition
+                    onChosen: (k) => {
+                        page.visualizerPosition = k;
+                        page.setConfig("background.widgets.visualizer.position", k)
+                    }
+                }
+
+                ChoiceRow {
+                    width: Math.min(parent.width, 460); label: "Orientation"
+                    options: [
+                        { key: "horizontal", label: "Horizontal" },
+                        { key: "vertical", label: "Vertical" }
+                    ]
+                    current: page.visualizerOrientation
+                    onChosen: (k) => {
+                        page.visualizerOrientation = k;
+                        page.setConfig("background.widgets.visualizer.orientation", k)
+                    }
+                }
+
+                ChoiceRow {
+                    width: Math.min(parent.width, 460); label: "Direction"
+                    options: [
+                        { key: "up", label: "Up" },
+                        { key: "down", label: "Down" },
+                        { key: "right", label: "Right" },
+                        { key: "left", label: "Left" }
+                    ]
+                    current: page.visualizerDirection
+                    onChosen: (k) => {
+                        page.visualizerDirection = k;
+                        page.setConfig("background.widgets.visualizer.direction", k)
+                    }
+                }
+
+                NumberField {
+                    width: Math.min(parent.width, 460); label: "Edge offset"; unit: "px"
+                    from: 0; to: 200; step: 2; value: page.visualizerOffset
+                    onModified: (v) => {
+                        page.visualizerOffset = v;
+                        page.setConfig("background.widgets.visualizer.offset", v)
+                    }
+                }
+
+                NumberField {
+                    width: Math.min(parent.width, 460); label: "Bar width"; unit: "px"
+                    from: 2; to: 24; step: 1; value: page.visualizerBarWidth
+                    onModified: (v) => {
+                        page.visualizerBarWidth = v;
+                        page.setConfig("background.widgets.visualizer.barWidth", v)
+                    }
+                }
+
+                NumberField {
+                    width: Math.min(parent.width, 460); label: "Bar spacing"; unit: "px"
+                    from: 0; to: 40; step: 1; value: page.visualizerBarSpacing
+                    onModified: (v) => {
+                        page.visualizerBarSpacing = v;
+                        page.setConfig("background.widgets.visualizer.barSpacing", v)
+                    }
+                }
+
+                NumberField {
+                    width: Math.min(parent.width, 460); label: "Max bar height"; unit: "px"
+                    from: 40; to: 500; step: 5; value: page.visualizerMaxBarHeight
+                    onModified: (v) => {
+                        page.visualizerMaxBarHeight = v;
+                        page.setConfig("background.widgets.visualizer.maxBarHeight", v)
+                    }
+                }
+
+                NumberField {
+                    width: Math.min(parent.width, 460); label: "Animation speed"; unit: "ms"
+                    from: 30; to: 400; step: 10; value: page.visualizerSmoothing
+                    onModified: (v) => {
+                        page.visualizerSmoothing = v;
+                        page.setConfig("background.widgets.visualizer.smoothingDuration", v)
+                    }
                 }
             }
         }

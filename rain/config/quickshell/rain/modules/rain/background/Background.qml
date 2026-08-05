@@ -16,6 +16,7 @@ import Quickshell.Hyprland
 
 import qs.modules.rain.background.widgets
 import qs.modules.rain.background.widgets.clock
+import qs.modules.rain.background.widgets.visualizer
 import qs.modules.rain.background.widgets.weather
 
 Variants {
@@ -131,6 +132,17 @@ Variants {
                         wallpaperScale: 1
                         wallpaperSafetyTriggered: bgRoot.wallpaperSafetyTriggered
                     }
+                }
+            }
+
+            FadeLoader {
+                shown: Config.options.background.widgets.visualizer.enable
+                sourceComponent: VisualizerWidget {
+                    screenWidth: bgRoot.screen.width
+                    screenHeight: bgRoot.screen.height
+                    scaledScreenWidth: bgRoot.screen.width
+                    scaledScreenHeight: bgRoot.screen.height
+                    wallpaperScale: 1
                 }
             }
         }

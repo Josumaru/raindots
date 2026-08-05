@@ -209,6 +209,21 @@ Singleton {
                         property real x: 400
                         property real y: 100
                     }
+                    property JsonObject visualizer: JsonObject {
+                        property bool enable: false
+                        property string placementStrategy: "free" // "free", "leastBusy", "mostBusy"
+                        property real x: 0
+                        property real y: 0
+                        property string position: "bottom" // "bottom" | "top" | "left" | "right"
+                        property string orientation: "horizontal" // "horizontal" | "vertical"
+                        property string direction: "up" // horizontal: "up" | "down"; vertical: "right" | "left"
+                        property real offset: 0 // distance from the selected screen edge
+                        property real barWidth: 6
+                        property real barSpacing: 10
+                        property real maxBarHeight: 200
+                        property real maxVisualizerValue: 1000
+                        property real smoothingDuration: 150
+                    }
                 }
                 property string wallpaperPath: ""
                 property string thumbnailPath: ""
@@ -536,6 +551,7 @@ Singleton {
                             { "size": 1, "type": "audio" },
                             { "size": 1, "type": "nightLight" },
                             { "size": 1, "type": "easyEffects" },
+                            { "size": 1, "type": "visualizer" },
                             { "size": 1, "type": "cloudflareWarp" },
                             { "size": 1, "type": "darkMode" },
                             { "size": 1, "type": "gameMode" },
@@ -633,7 +649,7 @@ Singleton {
                     property bool leftAlignApps: false
                 }
                 property JsonObject actionCenter: JsonObject {
-                    property list<string> toggles: [ "network", "bluetooth", "easyEffects", "powerProfile", "idleInhibitor", "nightLight", "darkMode", "antiFlashbang", "cloudflareWarp", "mic", "musicRecognition", "notifications", "onScreenKeyboard", "gameMode", "screenSnip", "colorPicker" ]
+                    property list<string> toggles: [ "network", "bluetooth", "easyEffects", "visualizer", "powerProfile", "idleInhibitor", "nightLight", "darkMode", "antiFlashbang", "cloudflareWarp", "mic", "musicRecognition", "notifications", "onScreenKeyboard", "gameMode", "screenSnip", "colorPicker" ]
                 }
                 property JsonObject calendar: JsonObject {
                     property bool force2CharDayOfWeek: true

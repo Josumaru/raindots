@@ -219,6 +219,95 @@ ContentPage {
 
     SettingSection {
         width: parent.width
+        title: Translation.tr("WIDGET: VISUALIZER (EQ)")
+
+        ToggleRow {
+            width: parent.width
+            label: Translation.tr("Enable")
+            checked: Config.options.background.widgets.visualizer.enable
+            onToggled: (v) => Config.options.background.widgets.visualizer.enable = v
+        }
+
+        ChoiceRow {
+            width: parent.width
+            label: Translation.tr("Position")
+            options: [
+                { key: "bottom", label: Translation.tr("Bottom") },
+                { key: "top", label: Translation.tr("Top") },
+                { key: "left", label: Translation.tr("Left") },
+                { key: "right", label: Translation.tr("Right") }
+            ]
+            current: Config.options.background.widgets.visualizer.position
+            onChosen: (k) => Config.options.background.widgets.visualizer.position = k
+        }
+
+        ChoiceRow {
+            width: parent.width
+            label: Translation.tr("Orientation")
+            options: [
+                { key: "horizontal", label: Translation.tr("Horizontal") },
+                { key: "vertical", label: Translation.tr("Vertical") }
+            ]
+            current: Config.options.background.widgets.visualizer.orientation
+            onChosen: (k) => Config.options.background.widgets.visualizer.orientation = k
+        }
+
+        ChoiceRow {
+            width: parent.width
+            label: Translation.tr("Direction")
+            options: [
+                { key: "up", label: Translation.tr("Up") },
+                { key: "down", label: Translation.tr("Down") },
+                { key: "right", label: Translation.tr("Right") },
+                { key: "left", label: Translation.tr("Left") }
+            ]
+            current: Config.options.background.widgets.visualizer.direction
+            onChosen: (k) => Config.options.background.widgets.visualizer.direction = k
+        }
+
+        NumberField {
+            width: parent.width
+            label: Translation.tr("Edge offset")
+            value: Config.options.background.widgets.visualizer.offset
+            from: 0; to: 200; step: 2
+            onModified: (v) => Config.options.background.widgets.visualizer.offset = v
+        }
+
+        NumberField {
+            width: parent.width
+            label: Translation.tr("Bar width")
+            value: Config.options.background.widgets.visualizer.barWidth
+            from: 2; to: 24; step: 1
+            onModified: (v) => Config.options.background.widgets.visualizer.barWidth = v
+        }
+
+        NumberField {
+            width: parent.width
+            label: Translation.tr("Bar spacing")
+            value: Config.options.background.widgets.visualizer.barSpacing
+            from: 0; to: 40; step: 1
+            onModified: (v) => Config.options.background.widgets.visualizer.barSpacing = v
+        }
+
+        NumberField {
+            width: parent.width
+            label: Translation.tr("Max bar height")
+            value: Config.options.background.widgets.visualizer.maxBarHeight
+            from: 40; to: 500; step: 5
+            onModified: (v) => Config.options.background.widgets.visualizer.maxBarHeight = v
+        }
+
+        NumberField {
+            width: parent.width
+            label: Translation.tr("Animation speed (ms)")
+            value: Config.options.background.widgets.visualizer.smoothingDuration
+            from: 30; to: 400; step: 10
+            onModified: (v) => Config.options.background.widgets.visualizer.smoothingDuration = v
+        }
+    }
+
+    SettingSection {
+        width: parent.width
         title: Translation.tr("FONTS")
 
         ChoiceRow {

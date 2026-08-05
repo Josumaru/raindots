@@ -21,7 +21,7 @@ AbstractQuickPanel {
 
     readonly property real cellSize: Math.max(30, Math.floor((root.width - padding * 2 - spacing * (columnCount - 1)) / columnCount))
 
-    readonly property list<string> availableToggleTypes: ["network", "bluetooth", "idleInhibitor", "easyEffects", "nightLight", "darkMode", "cloudflareWarp", "gameMode", "screenSnip", "colorPicker", "onScreenKeyboard", "mic", "audio", "notifications", "powerProfile", "musicRecognition", "antiFlashbang"]
+    readonly property list<string> availableToggleTypes: ["network", "bluetooth", "idleInhibitor", "easyEffects", "visualizer", "nightLight", "darkMode", "cloudflareWarp", "gameMode", "screenSnip", "colorPicker", "onScreenKeyboard", "mic", "audio", "notifications", "powerProfile", "musicRecognition", "antiFlashbang"]
     readonly property list<var> toggles: Config.ready ? Config.options.sidebar.quickToggles.android.toggles : []
     readonly property list<var> toggleRows: toggleRowsForList(toggles)
     readonly property list<var> unusedToggles: {
@@ -37,6 +37,7 @@ AbstractQuickPanel {
     readonly property QtObject audioModel: AudioToggle {}
     readonly property QtObject nightLightModel: NightLightToggle {}
     readonly property QtObject easyEffectsModel: EasyEffectsToggle {}
+    readonly property QtObject visualizerModel: VisualizerToggle {}
     readonly property QtObject cloudflareWarpModel: CloudflareWarpToggle {}
     readonly property QtObject darkModeModel: DarkModeToggle {}
     readonly property QtObject gameModeModel: GameModeToggle {}
@@ -56,6 +57,7 @@ AbstractQuickPanel {
         if (t === "audio") return audioModel
         if (t === "nightLight") return nightLightModel
         if (t === "easyEffects") return easyEffectsModel
+        if (t === "visualizer") return visualizerModel
         if (t === "cloudflareWarp") return cloudflareWarpModel
         if (t === "darkMode") return darkModeModel
         if (t === "gameMode") return gameModeModel
