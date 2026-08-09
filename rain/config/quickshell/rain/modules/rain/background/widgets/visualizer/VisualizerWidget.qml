@@ -22,7 +22,21 @@ AbstractBackgroundWidget {
     property real smoothingDuration: configEntry.smoothingDuration
 
     readonly property bool verticalLayout: orientation === "vertical"
-    readonly property int barCount: Math.max(1, Math.floor((verticalLayout ? screenHeight : screenWidth) / (barWidth + barSpacing)))
+    // Cap bar count — tiny bars (small barWidth/spacing) otherwise explode the item count.
+    readonly property real barExtent: verticalLayout ? screenHeight : screenWidth
+    readonly property int barCount: Math.min(120, Math.max(1, Math.floor(barExtent / (barWidth + barSpacing))))
+    // When the cap kicks in, grow the spacing so the bars still span the full edge.
+    readonly property real effectiveSpacing: barCount > 1 ? Math.max(barSpacing, (barExtent - barCount * barWidth) / (barCount - 1)) : barSpacing
+
+    function colorForLevel(level) {
+        const t = level / 20
+        return Qt.rgba(
+            Appearance.colors.colPrimary.r * t + Appearance.colors.colPrimaryContainer.r * (1 - t),
+            Appearance.colors.colPrimary.g * t + Appearance.colors.colPrimaryContainer.g * (1 - t),
+            Appearance.colors.colPrimary.b * t + Appearance.colors.colPrimaryContainer.b * (1 - t),
+            1
+        )
+    }
 
     readonly property var smoothedPoints: {
         let raw = points
@@ -79,7 +93,7 @@ AbstractBackgroundWidget {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        spacing: root.barSpacing
+        spacing: root.effectiveSpacing
         opacity: root.activityOpacity
         Behavior on opacity {
             NumberAnimation { duration: 400; easing.type: Easing.OutCubic }
@@ -99,17 +113,8 @@ AbstractBackgroundWidget {
                 bottomLeftRadius: root.direction === "down" ? root.barWidth / 2 : 0
                 bottomRightRadius: root.direction === "down" ? root.barWidth / 2 : 0
 
-                property real intensity: pointValue / root.maxBarHeight
-                color: Qt.rgba(
-                    Appearance.colors.colPrimary.r * intensity + Appearance.colors.colPrimaryContainer.r * (1 - intensity),
-                    Appearance.colors.colPrimary.g * intensity + Appearance.colors.colPrimaryContainer.g * (1 - intensity),
-                    Appearance.colors.colPrimary.b * intensity + Appearance.colors.colPrimaryContainer.b * (1 - intensity),
-                    1
-                )
-
-                Behavior on height {
-                    NumberAnimation { duration: root.smoothingDuration; easing.type: Easing.OutQuad }
-                }
+                property int intensityLevel: Math.round((pointValue / root.maxBarHeight) * 20)
+                color: root.colorForLevel(intensityLevel)
             }
         }
     }
@@ -120,7 +125,7 @@ AbstractBackgroundWidget {
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
         anchors.right: parent.right
-        spacing: root.barSpacing
+        spacing: root.effectiveSpacing
         opacity: root.activityOpacity
         Behavior on opacity {
             NumberAnimation { duration: 400; easing.type: Easing.OutCubic }
@@ -140,17 +145,8 @@ AbstractBackgroundWidget {
                 topRightRadius: root.direction === "left" ? root.barWidth / 2 : 0
                 bottomRightRadius: root.direction === "left" ? root.barWidth / 2 : 0
 
-                property real intensity: pointValue / root.maxBarHeight
-                color: Qt.rgba(
-                    Appearance.colors.colPrimary.r * intensity + Appearance.colors.colPrimaryContainer.r * (1 - intensity),
-                    Appearance.colors.colPrimary.g * intensity + Appearance.colors.colPrimaryContainer.g * (1 - intensity),
-                    Appearance.colors.colPrimary.b * intensity + Appearance.colors.colPrimaryContainer.b * (1 - intensity),
-                    1
-                )
-
-                Behavior on width {
-                    NumberAnimation { duration: root.smoothingDuration; easing.type: Easing.OutQuad }
-                }
+                property int intensityLevel: Math.round((pointValue / root.maxBarHeight) * 20)
+                color: root.colorForLevel(intensityLevel)
             }
         }
     }

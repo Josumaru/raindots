@@ -3,10 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"text/tabwriter"
 )
 
 const qsConfig = "rain"
@@ -47,7 +49,8 @@ var commands = map[string]string{
 
 func main() {
 	if len(os.Args) < 2 {
-		usage()
+		usage(os.Stderr)
+		os.Exit(1)
 	}
 
 	cmd := os.Args[1]
@@ -75,59 +78,88 @@ func main() {
 		cmdStatus(args)
 	case "ipc":
 		cmdIpc(args)
+	case "doctor":
+		cmdDoctor(args)
 	case "help", "--help", "-h":
-		usage()
+		usage(os.Stdout)
+		os.Exit(0)
 	default:
 		if target, ok := commands[cmd]; ok {
 			ipcCall(target, args)
 		} else {
-			usage()
+			usage(os.Stderr)
+			os.Exit(1)
 		}
 	}
 }
 
-func usage() {
-	fmt.Fprintf(os.Stderr, `Rain CLI — Control Hyprland & Quickshell
+func usage(w io.Writer) {
+	tw := tabwriter.NewWriter(w, 0, 4, 2, ' ', 0)
 
-Usage:
-  rain shell                     Launch quickshell rain
-  rain shell kill                Kill running quickshell
-  rain shell reload              Reload quickshell
-  rain shell log                 Follow quickshell logs
-  rain control                   Toggle control center
-  rain battery                   Toggle battery popup
-  rain network                   Toggle network popup
-  rain notifications             Toggle notifications popup
-  rain workspace <n>             Switch to workspace
-  rain wallpaper <path>          Set wallpaper
-  rain lock                      Lock screen
-  rain hub                       Launch settings hub
-  rain hub hypr themes           List available themes
-  rain hub hypr theme <slug>     Apply a theme
-  rain hub hypr scheme <mode>    Set colour source (follow|light|dark)
-  rain hub hypr cursors          List cursor themes
-  rain hyprctl <args>            Run hyprctl with args
-  rain log                       Show quickshell logs
+	fmt.Fprintln(tw, "Rain CLI — Control Hyprland & Quickshell")
+	fmt.Fprintln(tw)
+	fmt.Fprintln(tw, "Usage:")
+	fmt.Fprintf(tw, "  rain <command> [args]\n")
 
-  # II shell features
-  rain sidebar                   Toggle right sidebar (control center)
-  rain sidebarleft               Toggle left sidebar
-  rain search                    Toggle search/overview
-  rain cheatsheet                Toggle keybind cheatsheet
-  rain media                     Toggle media controls
-  rain overlay                   Toggle overlay
-  rain screenshot                Take region screenshot
-  rain translator                Screen translator
-  rain session                   Toggle session/power screen
-  rain wallpaperpicker           Toggle wallpaper picker
-  rain wallpaperselector         Toggle wallpaper selector
-  rain osk                       Toggle on-screen keyboard
-  rain osd                       Trigger volume OSD
-  rain bartoggle                 Toggle bar visibility
-  rain ipc <target> <fn> [args]  Raw quickshell IPC call
+	section := func(title string) {
+		fmt.Fprintf(tw, "\n  %s\n", title)
+	}
+	row := func(cmd, desc string) {
+		fmt.Fprintf(tw, "  %s\t%s\n", cmd, desc)
+	}
 
-`)
-	os.Exit(1)
+	section("Shell")
+	row("shell", "Launch quickshell rain")
+	row("shell kill", "Kill running quickshell")
+	row("shell reload", "Kill quickshell (reloads on next launch)")
+	row("shell log", "Follow quickshell logs")
+	row("log", "Follow quickshell logs")
+
+	section("Hyprland")
+	row("workspace <n>", "Switch to workspace")
+	row("hyprctl <args>", "Run hyprctl with args")
+	row("wallpaper <path>", "Set wallpaper")
+	row("lock", "Lock screen (hyprlock)")
+	row("status", "Show shell update status")
+
+	section("Hub")
+	row("hub", "Launch settings hub")
+	row("hub hypr themes", "List Hyprland themes")
+	row("hub hypr theme <slug>", "Apply a theme")
+	row("hub hypr scheme <mode>", "Set colour source (follow|light|dark)")
+	row("hub hypr cursors", "List cursor themes")
+
+	section("Bar & Panels")
+	row("control", "Toggle control center")
+	row("battery", "Toggle battery popup")
+	row("network", "Toggle network popup")
+	row("notifications", "Toggle notifications popup")
+	row("sidebar", "Toggle right sidebar (control center)")
+	row("sidebaropen/sidebarclose", "Open/close right sidebar")
+	row("sidebarleft", "Toggle left sidebar")
+	row("sidebarleftopen/sidebarleftclose", "Open/close left sidebar")
+	row("bartoggle/baropen/barclose", "Toggle/open/close bar visibility")
+	row("search", "Toggle search/overview")
+	row("cheatsheet", "Toggle keybind cheatsheet")
+	row("media", "Toggle media controls")
+	row("overlay", "Toggle widget overlay")
+	row("screenshot", "Take region screenshot")
+	row("translator", "Screen translator")
+	row("session", "Toggle session/power screen")
+	row("wallpaperpicker", "Toggle wallpaper picker")
+	row("wallpaperselector", "Toggle wallpaper selector")
+	row("osk", "Toggle on-screen keyboard")
+	row("osd", "Trigger volume OSD")
+
+	section("Low-level")
+	row("ipc <target> <fn> [args]", "Raw quickshell IPC call")
+	row("doctor", "Check environment health")
+
+	fmt.Fprintln(tw)
+	fmt.Fprintln(tw, "Aliases: controlcenter, sidebarright, overview, mediacontrols, region,")
+	fmt.Fprintln(tw, "         screentranslator, keyboard, ws, logs")
+
+	tw.Flush()
 }
 
 func qsCmd(args ...string) *exec.Cmd {

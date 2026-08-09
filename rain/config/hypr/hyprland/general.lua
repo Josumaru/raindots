@@ -2,8 +2,11 @@
 hl.monitor({
     output = "eDP-1",
     mode = "1920x1080@144",
+    -- mode = "2304x1296@144",
+    -- mode = "1080x1296@144",
     position = "auto",
-    scale = 1
+    scale = 1,
+    -- transform = 5,
 })
 
 
@@ -88,9 +91,9 @@ hl.config({
             special = false,
             new_optimizations = true,
             size = 1,
-            passes = 4,
+            passes = 5,
             brightness = 0.8,
-            noise = 0,
+            noise = 0.3,
             contrast = 0.89,
             vibrancy = 0,
             vibrancy_darkness = 0.5,
@@ -268,6 +271,7 @@ hl.config({
         repeat_rate = 35,
 
         scroll_factor = 2,
+
 
         follow_mouse = 1,
         off_window_axis_events = 2,

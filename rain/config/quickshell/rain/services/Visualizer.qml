@@ -4,12 +4,16 @@ import qs.modules.common.functions
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Services.Mpris
 pragma Singleton
 pragma ComponentBehavior: Bound
 
 /**
  * Runs cava to feed audio amplitude data into points. Shared by the
  * background equalizer widget and the media controls popup.
+ *
+ * Cava is only kept alive while something is actually playing (or the
+ * media controls popup is open) to avoid wasting CPU when idle.
  */
 Singleton {
     id: root
@@ -18,6 +22,7 @@ Singleton {
     property list<real> points: []
     readonly property bool running: cavaProc.running
 
+    readonly property MprisPlayer activePlayer: MprisController.activePlayer
     readonly property bool enabled: Config.ready && Config.options.background.widgets.visualizer.enable
 
     Process {
@@ -31,7 +36,7 @@ Singleton {
 
     Process {
         id: cavaProc
-        running: root.available && (root.enabled || GlobalStates.mediaControlsOpen)
+        running: root.available && (GlobalStates.mediaControlsOpen || (root.enabled && root.activePlayer !== null && root.activePlayer.isPlaying))
         onRunningChanged: {
             if (!cavaProc.running) {
                 root.points = []

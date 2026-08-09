@@ -493,6 +493,33 @@ func stepBuild(e *engine) error {
 	}
 	e.say("linked " + binTarget + " -> " + binDir)
 
+	// Deploy the rain binary onto PATH (~/.local/bin/rain)
+	binDirLocal := filepath.Join(e.f.homeDir, ".local", "bin")
+	if err := os.MkdirAll(binDirLocal, 0o755); err != nil {
+		return err
+	}
+	binLink := filepath.Join(binDirLocal, "rain")
+	if existing, err := os.Lstat(binLink); err == nil {
+		if existing.Mode()&os.ModeSymlink != 0 {
+			if old, _ := os.Readlink(binLink); old == filepath.Join(binDir, "rain") {
+				e.say(binLink + " already points at rain")
+			} else {
+				os.Remove(binLink)
+				e.sayf("re-linked %s -> %s", binLink, filepath.Join(binDir, "rain"))
+			}
+		} else {
+			bak := binLink + ".bak." + fmt.Sprintf("%d", time.Now().Unix())
+			os.Rename(binLink, bak)
+			e.say("backed up " + binLink + " -> " + bak)
+		}
+	}
+	if _, err := os.Lstat(binLink); err != nil {
+		if err := os.Symlink(filepath.Join(binDir, "rain"), binLink); err != nil {
+			return fmt.Errorf("symlink %s: %w", binLink, err)
+		}
+		e.say("deployed " + binLink + " -> " + filepath.Join(binDir, "rain"))
+	}
+
 	return nil
 }
 
@@ -657,6 +684,20 @@ func stepVerify(e *engine) error {
 		check(true, "rain CLI responds: "+strings.TrimSpace(string(b)))
 	} else {
 		check(false, "rain CLI is functional")
+	}
+
+	// Check PATH deploy
+	binLink := filepath.Join(e.f.homeDir, ".local", "bin", "rain")
+	if target, err := filepath.EvalSymlinks(binLink); err == nil {
+		if b2, err := filepath.EvalSymlinks(bin); err == nil && target == b2 {
+			check(true, "rain is on PATH -> "+target)
+		} else if resolved, rerr := os.Readlink(binLink); rerr == nil {
+			check(false, "rain on PATH -> "+resolved+" (expected "+bin+")")
+		} else {
+			check(false, "rain on PATH points somewhere unexpected")
+		}
+	} else {
+		check(false, "rain is missing from PATH (~/.local/bin/rain)")
 	}
 
 	if len(bad) > 0 {
