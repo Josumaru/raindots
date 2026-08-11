@@ -1,11 +1,14 @@
 {
   "background.widgets.visualizer.barSpacing": "0",
-  "background.widgets.visualizer.barWidth": "11",
+  "background.widgets.visualizer.barWidth": "4",
   "background.widgets.visualizer.direction": "down",
   "background.widgets.visualizer.enable": "true",
-  "background.widgets.visualizer.maxBarHeight": "205",
-  "background.widgets.visualizer.offset": "4",
+  "background.widgets.visualizer.maxBarHeight": "285",
+  "background.widgets.visualizer.offset": "0",
+  "background.widgets.visualizer.orientation": "horizontal",
+  "background.widgets.visualizer.position": "bottom",
   "background.widgets.visualizer.smoothingDuration": "190",
   "bar.indicators.launcher.showLauncherButton": "true",
+  "bar.indicators.notifications.showUnreadCount": "true",
   "update_interval": "daily"
 }

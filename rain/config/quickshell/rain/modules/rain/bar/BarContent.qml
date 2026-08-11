@@ -134,13 +134,13 @@ Item { // Bar content region
             LeftSidebarButton { // Left sidebar button
                 id: leftSidebarButton
                 Layout.alignment: Qt.AlignVCenter
-                Layout.leftMargin: Appearance.rounding.screenRounding
+                Layout.leftMargin: Appearance.rounding.small
                 colBackground: barLeftSideMouseArea.hovered ? Appearance.colors.colLayer1Hover : ColorUtils.transparentize(Appearance.colors.colLayer1Hover, 1)
             }
 
             ActiveWindow {
-                Layout.leftMargin: 10 + (leftSidebarButton.visible ? 0 : Appearance.rounding.screenRounding)
-                Layout.rightMargin: Appearance.rounding.screenRounding
+                Layout.leftMargin: 10 + (leftSidebarButton.visible ? 0 : Appearance.rounding.small)
+                Layout.rightMargin: Appearance.rounding.small
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 visible: root.useShortenedForm === 0
@@ -277,7 +277,7 @@ Item { // Bar content region
                 id: rightSidebarButton
 
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                Layout.rightMargin: Appearance.rounding.screenRounding
+                Layout.rightMargin: Appearance.rounding.small
                 Layout.fillWidth: false
 
                 implicitWidth: indicatorsRowLayout.implicitWidth + 10 * 2
@@ -358,10 +358,36 @@ Item { // Bar content region
                     }
                     Icon {
                         Layout.leftMargin: indicatorsRowLayout.realSpacing
-                        visible: BluetoothStatus.available
+                        visible: BluetoothStatus.enabled
                         name: "bluetooth"
                         size: Appearance.font.pixelSize.small
                         tint: rightSidebarButton.colText
+                    }
+                    Revealer {
+                        reveal: Idle.inhibit
+                        Layout.fillHeight: true
+                        Layout.leftMargin: reveal ? indicatorsRowLayout.realSpacing : 0
+                        Behavior on Layout.leftMargin {
+                            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                        }
+                        Icon {
+                            name: "coffee"
+                            size: Appearance.font.pixelSize.small
+                            tint: rightSidebarButton.colText
+                        }
+                    }
+                    Revealer {
+                        reveal: Config.ready && Config.options.background.widgets.visualizer.enable
+                        Layout.fillHeight: true
+                        Layout.leftMargin: reveal ? indicatorsRowLayout.realSpacing : 0
+                        Behavior on Layout.leftMargin {
+                            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                        }
+                        Icon {
+                            name: "equalizer"
+                            size: Appearance.font.pixelSize.small
+                            tint: rightSidebarButton.colText
+                        }
                     }
                 }
             }

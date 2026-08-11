@@ -22,9 +22,9 @@ AbstractBackgroundWidget {
     property real smoothingDuration: configEntry.smoothingDuration
 
     readonly property bool verticalLayout: orientation === "vertical"
-    // Cap bar count — tiny bars (small barWidth/spacing) otherwise explode the item count.
+    // Cap bar count — tiny bars (small barWidth/spacing) otherwise explode the canvas work.
     readonly property real barExtent: verticalLayout ? screenHeight : screenWidth
-    readonly property int barCount: Math.min(120, Math.max(1, Math.floor(barExtent / (barWidth + barSpacing))))
+    readonly property int barCount: Math.min(200, Math.max(1, Math.floor(barExtent / (barWidth + barSpacing))))
     // When the cap kicks in, grow the spacing so the bars still span the full edge.
     readonly property real effectiveSpacing: barCount > 1 ? Math.max(barSpacing, (barExtent - barCount * barWidth) / (barCount - 1)) : barSpacing
 
@@ -38,35 +38,22 @@ AbstractBackgroundWidget {
         )
     }
 
-    readonly property var smoothedPoints: {
-        let raw = points
-        if (!raw || raw.length === 0) return Array(barCount).fill(0)
-        let count = barCount
-        let mapped = new Array(count)
-        let rawLenM1 = raw.length - 1
-
-        for (let i = 0; i < count; i++) {
-            let progress = i / (count - 1 || 1)
-            let relPos = progress * rawLenM1
-            let low = Math.floor(relPos)
-            let high = Math.ceil(relPos)
-            let mix = relPos - low
-            mapped[i] = (raw[low] * (1 - mix)) + (raw[high] * (high < raw.length ? mix : 0))
-        }
-
-        let smoothed = new Array(count)
-        let sW = 0.2
-        for (let j = 0; j < count; j++) {
-            let p = mapped[Math.max(0, j - 1)]
-            let n = mapped[Math.min(count - 1, j + 1)]
-            smoothed[j] = (p * sW) + (mapped[j] * (1.0 - 2 * sW)) + (n * sW)
-        }
-        return smoothed
-    }
-
-    function valueAt(i) {
-        const v = root.smoothedPoints[i] ?? 0
-        return Math.max(root.barWidth, (v / root.maxVisualizerValue) * root.maxBarHeight)
+    function roundRectPath(ctx, x, y, w, h, rTL, rTR, rBR, rBL) {
+        rTL = Math.min(rTL, w / 2, h / 2)
+        rTR = Math.min(rTR, w / 2, h / 2)
+        rBR = Math.min(rBR, w / 2, h / 2)
+        rBL = Math.min(rBL, w / 2, h / 2)
+        ctx.beginPath()
+        ctx.moveTo(x + rTL, y)
+        ctx.lineTo(x + w - rTR, y)
+        ctx.arcTo(x + w, y, x + w, y + rTR, rTR)
+        ctx.lineTo(x + w, y + h - rBR)
+        ctx.arcTo(x + w, y + h, x + w - rBR, y + h, rBR)
+        ctx.lineTo(x + rBL, y + h)
+        ctx.arcTo(x, y + h, x, y + h - rBL, rBL)
+        ctx.lineTo(x, y + rTL)
+        ctx.arcTo(x, y, x + rTL, y, rTL)
+        ctx.closePath()
     }
 
     property real activityOpacity: Visualizer.running ? 1.0 : 0.0
@@ -87,66 +74,92 @@ AbstractBackgroundWidget {
         return position === "bottom" ? screenHeight - height - root.edgeOffset : root.edgeOffset
     }
 
-    // Horizontal bars (bottom/top) — grow up or down.
-    Row {
-        visible: !root.verticalLayout
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        spacing: root.effectiveSpacing
+    Canvas {
+        id: canvas
+        anchors.fill: parent
         opacity: root.activityOpacity
         Behavior on opacity {
             NumberAnimation { duration: 400; easing.type: Easing.OutCubic }
         }
 
-        Repeater {
-            model: root.barCount
-            Rectangle {
-                required property int index
-                width: root.barWidth
-                property real pointValue: root.valueAt(index)
-                height: pointValue
-                anchors.bottom: root.direction === "up" ? parent.bottom : undefined
-                anchors.top: root.direction === "down" ? parent.top : undefined
-                topLeftRadius: root.barWidth / 2
-                topRightRadius: root.barWidth / 2
-                bottomLeftRadius: root.direction === "down" ? root.barWidth / 2 : 0
-                bottomRightRadius: root.direction === "down" ? root.barWidth / 2 : 0
+        Connections {
+            target: root
+            function onPointsChanged() { canvas.requestPaint() }
+            function onBarCountChanged() { canvas.requestPaint() }
+            function onEffectiveSpacingChanged() { canvas.requestPaint() }
+            function onBarWidthChanged() { canvas.requestPaint() }
+            function onMaxBarHeightChanged() { canvas.requestPaint() }
+            function onMaxVisualizerValueChanged() { canvas.requestPaint() }
+            function onDirectionChanged() { canvas.requestPaint() }
+            function onOrientationChanged() { canvas.requestPaint() }
+        }
 
-                property int intensityLevel: Math.round((pointValue / root.maxBarHeight) * 20)
-                color: root.colorForLevel(intensityLevel)
+        onWidthChanged: () => canvas.requestPaint()
+        onHeightChanged: () => canvas.requestPaint()
+
+        onPaint: {
+            const ctx = canvas.getContext("2d")
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+            const count = root.barCount
+            if (count === 0) return
+
+            const maxV = root.maxVisualizerValue || 1
+            const raw = root.points
+            const rawLen = raw.length
+
+            const vals = new Array(count)
+            if (rawLen === 0) {
+                vals.fill(0)
+            } else {
+                const rawLenM1 = rawLen - 1
+                const mapped = new Array(count)
+                for (let i = 0; i < count; i++) {
+                    const progress = i / (count - 1 || 1)
+                    const relPos = progress * rawLenM1
+                    const low = Math.floor(relPos)
+                    const high = Math.ceil(relPos)
+                    const mix = relPos - low
+                    mapped[i] = (raw[low] * (1 - mix)) + (raw[high] * (high < rawLen ? mix : 0))
+                }
+                const sW = 0.2
+                for (let j = 0; j < count; j++) {
+                    const p = mapped[Math.max(0, j - 1)]
+                    const n = mapped[Math.min(count - 1, j + 1)]
+                    vals[j] = (p * sW) + (mapped[j] * (1.0 - 2 * sW)) + (n * sW)
+                }
             }
-        }
-    }
 
-    // Vertical bars (left/right) — grow right or left.
-    Column {
-        visible: root.verticalLayout
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.left: parent.left
-        anchors.right: parent.right
-        spacing: root.effectiveSpacing
-        opacity: root.activityOpacity
-        Behavior on opacity {
-            NumberAnimation { duration: 400; easing.type: Easing.OutCubic }
-        }
-
-        Repeater {
-            model: root.barCount
-            Rectangle {
-                required property int index
-                height: root.barWidth
-                property real pointValue: root.valueAt(index)
-                width: pointValue
-                anchors.left: root.direction === "right" ? parent.left : undefined
-                anchors.right: root.direction === "left" ? parent.right : undefined
-                topLeftRadius: root.barWidth / 2
-                bottomLeftRadius: root.barWidth / 2
-                topRightRadius: root.direction === "left" ? root.barWidth / 2 : 0
-                bottomRightRadius: root.direction === "left" ? root.barWidth / 2 : 0
-
-                property int intensityLevel: Math.round((pointValue / root.maxBarHeight) * 20)
-                color: root.colorForLevel(intensityLevel)
+            const radius = root.barWidth / 2
+            if (!root.verticalLayout) {
+                const up = root.direction === "up"
+                const total = count * root.barWidth + (count - 1) * root.effectiveSpacing
+                let x = (canvas.width - total) / 2
+                for (let i = 0; i < count; i++) {
+                    const h = Math.max(root.barWidth, (vals[i] / maxV) * root.maxBarHeight)
+                    const y = up ? canvas.height - h : 0
+                    ctx.fillStyle = root.colorForLevel(Math.round((h / root.maxBarHeight) * 20))
+                    root.roundRectPath(ctx, x, y, root.barWidth, h,
+                        up ? radius : 0, up ? radius : 0,
+                        up ? 0 : radius, up ? 0 : radius)
+                    ctx.fill()
+                    x += root.barWidth + root.effectiveSpacing
+                }
+            } else {
+                const growRight = root.direction === "right"
+                const roundedFarSide = root.direction === "left"
+                const total = count * root.barWidth + (count - 1) * root.effectiveSpacing
+                let y = (canvas.height - total) / 2
+                for (let i = 0; i < count; i++) {
+                    const w = Math.max(root.barWidth, (vals[i] / maxV) * root.maxBarHeight)
+                    const x = growRight ? 0 : canvas.width - w
+                    ctx.fillStyle = root.colorForLevel(Math.round((w / root.maxBarHeight) * 20))
+                    root.roundRectPath(ctx, x, y, w, root.barWidth,
+                        radius, roundedFarSide ? radius : 0,
+                        roundedFarSide ? radius : 0, radius)
+                    ctx.fill()
+                    y += root.barWidth + root.effectiveSpacing
+                }
             }
         }
     }
