@@ -315,7 +315,7 @@ Item { // Bar content region
                             animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
                         }
                         Icon {
-                            name: "volume_up"
+                            name: "speaker_muted"
                             size: Appearance.font.pixelSize.larger
                             tint: rightSidebarButton.colText
                         }
