@@ -81,11 +81,16 @@ hl.bind("SUPER + SHIFT + R", hl.dsp.exec_cmd(rainBin .. " ipc region record"),
 hl.bind("SUPER + ALT + R", hl.dsp.exec_cmd(rainBin .. " ipc region record"), { locked = true })
 --# Fullscreen screenshot
 local grimhyprctl = "grim -o \"$(hyprctl activeworkspace -j | jq -r '.monitor')\""
-hl.bind("Print", hl.dsp.exec_cmd(grimhyprctl .. " - | wl-copy"),
-    { locked = true, description = "Utilities: Screenshot >> clipboard" })
+hl.bind("Print", hl.dsp.exec_cmd(rainBin .. " ipc region screenshot"),
+    { description = "Utilities: Screen snip" })
+hl.bind("Print",
+    hl.dsp.exec_cmd("pgrep -f 'quickshell -c rain'" .. " || pidof slurp || hyprshot --freeze --clipboard-only --mode region --silent"))
 hl.bind("CTRL + Print", hl.dsp.exec_cmd(
-    "mkdir -p $(xdg-user-dir PICTURES)/Screenshots && " ..
-    grimhyprctl .. " $(xdg-user-dir PICTURES)/Screenshots/Screenshot_\"$(date '+%Y-%m-%d_%H.%M.%S')\".png"
+    "shot_dir=\"$(xdg-user-dir PICTURES)/Screenshots\"; mkdir -p \"$shot_dir\" && " ..
+    "shot_path=\"$shot_dir/Screenshot_\"$(date '+%Y-%m-%d_%H.%M.%S')\".png\" && " ..
+    grimhyprctl .. " \"$shot_path\" && " ..
+    "response=$(notify-send 'Screenshot saved' \"$shot_path\" -a 'Shell' -i \"$shot_path\" -A 'default=Open'); " ..
+    "[ \"$response\" = \"default\" ] && xdg-open \"$shot_path\""
 ), { locked = true, non_consuming = true, description = "Utilities: Screenshot >> clipboard & file" })
 hl.bind("CTRL + Print", hl.dsp.exec_cmd(grimhyprctl .. " - | wl-copy"), { locked = true, non_consuming = true })
 --# AI

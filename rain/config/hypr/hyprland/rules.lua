@@ -4,12 +4,12 @@
 -- hl.window_rule({ match = { class = "^()$", title = "^()$" },                   no_blur = true })
 
 -- Disable blur for every window
-hl.window_rule({ match = { class = ".*" }, no_blur = true })
+hl.window_rule({ match = { class = ".*" }, no_blur = false })
 
 hl.window_rule({ match = { title = "wallpaper-picker" }, no_blur = true })
 
-hl.window_rule({ match = { class = ".*" }, opacity = 0.8 })
-hl.window_rule({ match = { class = "code" }, opacity = 0.8 })
+hl.window_rule({ match = { class = ".*" }, opacity = 0.75 })
+-- hl.window_rule({ match = { class = "code" }, opacity = 0.8 })
 hl.window_rule({ match = { class = "discord" }, no_blur = false })
 hl.window_rule({ match = { class = "com.github.rafostar.Clapper" }, no_blur = true })
 hl.window_rule({ match = { class = "com.github.rafostar.Clapper" }, opacity = 1 })
@@ -19,6 +19,8 @@ hl.window_rule({ match = { class = "Fin.*" }, opacity = 1 })
 hl.window_rule({ match = { class = "Fin.*" }, no_blur = true })
 hl.window_rule({ match = { class = "steam.*" }, opacity = 1 })
 hl.window_rule({ match = { class = "steam.*" }, no_blur = true })
+hl.window_rule({ match = { class = "brave-browser" }, opacity = 1 })
+hl.window_rule({ match = { class = "brave-browser" }, no_blur = true })
 hl.window_rule({ match = { class = "VirtualBox.*" }, opacity = 1 })
 hl.window_rule({ match = { class = "VirtualBox.*" }, no_blur = true })
 hl.window_rule({ match = { class = "hyperbeam" }, opacity = 1 })

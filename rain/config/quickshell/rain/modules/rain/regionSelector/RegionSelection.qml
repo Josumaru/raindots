@@ -1,4 +1,5 @@
 pragma ComponentBehavior: Bound
+import qs
 import qs.modules.common
 import qs.modules.common.utils
 import qs.modules.common.functions
@@ -18,7 +19,9 @@ PanelWindow {
     color: "transparent"
     WlrLayershell.namespace: "quickshell:regionSelector"
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
+    // Only the interacted monitor grabs the keyboard so Enter always lands on the right instance
+    WlrLayershell.keyboardFocus: GlobalStates.regionSelectorActiveScreen === "" || GlobalStates.regionSelectorActiveScreen === root.screen.name
+        ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.OnDemand
     exclusionMode: ExclusionMode.Ignore
     anchors {
         left: true
@@ -31,7 +34,7 @@ PanelWindow {
     // TODO: Ask: sidebar AI
     enum SnipAction { Copy, Edit, Search, CharRecognition, Record, RecordWithSound } 
     enum SelectionMode { RectCorners, Circle }
-    enum Phase { Select, Post }
+    enum Phase { Select, Adjust, Post }
     property var action: RegionSelection.SnipAction.Copy
     property var selectionMode: RegionSelection.SelectionMode.RectCorners
     property var phase: RegionSelection.Phase.Select
@@ -130,10 +133,10 @@ PanelWindow {
     }
     function setRegionToTargeted() {
         const padding = Config.options.regionSelector.targetRegions.selectionPadding; // Make borders not cut off n stuff
-        root.regionX = root.targetedRegionX - padding;
-        root.regionY = root.targetedRegionY - padding;
-        root.regionWidth = root.targetedRegionWidth + padding * 2;
-        root.regionHeight = root.targetedRegionHeight + padding * 2;
+        root.selX = root.targetedRegionX - padding;
+        root.selY = root.targetedRegionY - padding;
+        root.selW = root.targetedRegionWidth + padding * 2;
+        root.selH = root.targetedRegionHeight + padding * 2;
     }
 
     function updateTargetedRegion(x, y) {
@@ -179,10 +182,25 @@ PanelWindow {
         root.targetedRegionHeight = 0;
     }
 
-    property real regionWidth: Math.abs(draggingX - dragStartX)
-    property real regionHeight: Math.abs(draggingY - dragStartY)
-    property real regionX: Math.min(dragStartX, draggingX)
-    property real regionY: Math.min(dragStartY, draggingY)
+    // Current selection rectangle (logical px)
+    property real selX: 0
+    property real selY: 0
+    property real selW: 0
+    property real selH: 0
+
+    // Adjust phase state
+    readonly property real adjustMargin: 8
+    readonly property real minSelSize: 4
+    property string adjustMode: "" // "", "move", "resize", "redraw"
+    property string resizeZone: ""
+    property string hoverZone: ""
+    property point adjustPressPos: Qt.point(0, 0)
+    property var adjustOrigSel: ({ "x": 0, "y": 0, "w": 0, "h": 0 })
+
+    // Last selection memory (per screen, persisted)
+    readonly property string lastRegionFilePath: FileUtils.trimFileProtocol(`${Directories.state}/user/region-selector.json`)
+    property var rememberedRegions: ({})
+    property bool rememberedApplied: false
 
     // Screenshot stuff
     TempScreenshotProcess {
@@ -215,7 +233,59 @@ PanelWindow {
             root.dismiss();
             return;
         }
+        root.applyRememberedRegion();
         root.visible = true;
+    }
+
+    // Last selection persistence
+    FileView {
+        id: lastRegionFile
+        path: Qt.resolvedUrl(root.lastRegionFilePath)
+        onLoaded: {
+            try {
+                root.rememberedRegions = JSON.parse(lastRegionFile.text() || "{}");
+            } catch (e) {
+                root.rememberedRegions = {};
+            }
+        }
+        onLoadFailed: (error) => {
+            root.rememberedRegions = {};
+        }
+    }
+    Component.onCompleted: {
+        Quickshell.execDetached(["mkdir", "-p", FileUtils.trimFileProtocol(`${Directories.state}/user`)]);
+    }
+
+    function applyRememberedRegion() {
+        if (root.rememberedApplied) return;
+        root.rememberedApplied = true;
+        const r = root.rememberedRegions[root.screen.name];
+        if (!r) return;
+        const w = Math.min(r.width ?? 0, root.screen.width);
+        const h = Math.min(r.height ?? 0, root.screen.height);
+        if (w < root.minSelSize * 2 || h < root.minSelSize * 2) return;
+        root.selW = w;
+        root.selH = h;
+        root.selX = Math.max(0, Math.min(r.x ?? 0, root.screen.width - w));
+        root.selY = Math.max(0, Math.min(r.y ?? 0, root.screen.height - h));
+        keyHandler.forceActiveFocus();
+        if (GlobalStates.regionSelectorActiveScreen === "")
+            GlobalStates.regionSelectorActiveScreen = root.screen.name;
+        root.phase = RegionSelection.Phase.Adjust;
+    }
+
+    function rememberSelection() {
+        let data = {};
+        try {
+            data = JSON.parse(lastRegionFile.text() || "{}");
+        } catch (e) {}
+        data[root.screen.name] = {
+            "x": Math.round(root.selX),
+            "y": Math.round(root.selY),
+            "width": Math.round(root.selW),
+            "height": Math.round(root.selH),
+        };
+        lastRegionFile.setText(JSON.stringify(data));
     }
 
     Process {
@@ -257,37 +327,146 @@ PanelWindow {
         }
     }
 
+    function clampSelection() {
+        root.selX = Math.max(0, Math.min(root.selX, root.screen.width - root.selW));
+        root.selY = Math.max(0, Math.min(root.selY, root.screen.height - root.selH));
+        root.selW = Math.max(0, Math.min(root.selW, root.screen.width - root.selX));
+        root.selH = Math.max(0, Math.min(root.selH, root.screen.height - root.selY));
+    }
+
+    // Selection finished (mouse released in Select phase) -> enter Adjust phase
+    function finishSelection() {
+        root.dragging = false;
+        if ((root.action === RegionSelection.SnipAction.Copy || root.action === RegionSelection.SnipAction.Edit)
+            && root.mouseButton === Qt.RightButton) {
+            root.action = RegionSelection.SnipAction.Edit;
+        }
+        root.points = [];
+        if (root.selW < root.minSelSize || root.selH < root.minSelSize) {
+            if (!root.targetedRegionValid()) root.dismiss();
+            return;
+        }
+        root.clampSelection();
+        keyHandler.forceActiveFocus();
+        root.selectionMode = RegionSelection.SelectionMode.RectCorners;
+        root.phase = RegionSelection.Phase.Adjust;
+    }
+
+    function zoneAt(x, y) {
+        const m = root.adjustMargin;
+        const nearL = Math.abs(x - root.selX) <= m;
+        const nearR = Math.abs(x - (root.selX + root.selW)) <= m;
+        const nearT = Math.abs(y - root.selY) <= m;
+        const nearB = Math.abs(y - (root.selY + root.selH)) <= m;
+        const inside = x > root.selX && x < root.selX + root.selW && y > root.selY && y < root.selY + root.selH;
+        let vert = "";
+        let horiz = "";
+        if (nearT) vert = "n";
+        else if (nearB) vert = "s";
+        if (nearL) horiz = "w";
+        else if (nearR) horiz = "e";
+        if (vert === "" && horiz === "") return inside ? "move" : "outside";
+        return `${vert}${horiz}`;
+    }
+
+    function adjustPressed(x, y) {
+        const zone = zoneAt(x, y);
+        if (zone === "outside") {
+            // Start drawing a new selection from scratch
+            root.adjustMode = "redraw";
+            root.dragStartX = x;
+            root.dragStartY = y;
+            root.selX = x;
+            root.selY = y;
+            root.selW = 0;
+            root.selH = 0;
+            return;
+        }
+        root.adjustOrigSel = { "x": root.selX, "y": root.selY, "w": root.selW, "h": root.selH };
+        root.adjustPressPos = Qt.point(x, y);
+        root.resizeZone = zone;
+        root.adjustMode = (zone === "move") ? "move" : "resize";
+    }
+
+    function adjustMoved(x, y) {
+        if (root.adjustMode === "") {
+            root.hoverZone = zoneAt(x, y);
+            return;
+        }
+        if (root.adjustMode === "redraw") {
+            root.selX = Math.min(root.dragStartX, x);
+            root.selY = Math.min(root.dragStartY, y);
+            root.selW = Math.abs(x - root.dragStartX);
+            root.selH = Math.abs(y - root.dragStartY);
+            return;
+        }
+        const dx = x - root.adjustPressPos.x;
+        const dy = y - root.adjustPressPos.y;
+        const o = root.adjustOrigSel;
+        const minSize = root.minSelSize;
+        if (root.adjustMode === "move") {
+            root.selX = Math.max(0, Math.min(o.x + dx, root.screen.width - o.w));
+            root.selY = Math.max(0, Math.min(o.y + dy, root.screen.height - o.h));
+            return;
+        }
+        // resize
+        const z = root.resizeZone;
+        if (z.includes("w")) {
+            const nx = Math.max(0, Math.min(o.x + dx, o.x + o.w - minSize));
+            root.selX = nx;
+            root.selW = o.x + o.w - nx;
+        } else if (z.includes("e")) {
+            root.selW = Math.max(minSize, Math.min(o.w + dx, root.screen.width - o.x));
+        }
+        if (z.includes("n")) {
+            const ny = Math.max(0, Math.min(o.y + dy, o.y + o.h - minSize));
+            root.selY = ny;
+            root.selH = o.y + o.h - ny;
+        } else if (z.includes("s")) {
+            root.selH = Math.max(minSize, Math.min(o.h + dy, root.screen.height - o.y));
+        }
+    }
+
+    function adjustReleased(x, y) {
+        if (root.adjustMode === "redraw" && (root.selW < root.minSelSize || root.selH < root.minSelSize)) {
+            root.dismiss(); // Clicked away -> cancel
+            return;
+        }
+        if (root.adjustMode !== "") {
+            root.clampSelection();
+            // Persist the latest adjusted position & size
+            root.rememberSelection();
+        }
+        root.adjustMode = "";
+        root.resizeZone = "";
+    }
+
     // Execution after selection
     function snip() {
         // Validity check
-        if (root.regionWidth <= 0 || root.regionHeight <= 0) {
+        if (root.selW <= 0 || root.selH <= 0) {
             console.warn("[Region Selector] Invalid region size, skipping snip.");
             root.dismiss();
+            return;
         }
 
         // Clamp region to screen bounds
-        root.regionX = Math.max(0, Math.min(root.regionX, root.screen.width - root.regionWidth));
-        root.regionY = Math.max(0, Math.min(root.regionY, root.screen.height - root.regionHeight));
-        root.regionWidth = Math.max(0, Math.min(root.regionWidth, root.screen.width - root.regionX));
-        root.regionHeight = Math.max(0, Math.min(root.regionHeight, root.screen.height - root.regionY));
+        root.clampSelection();
 
-        // Adjust action
-        if (root.action === RegionSelection.SnipAction.Copy || root.action === RegionSelection.SnipAction.Edit) {
-            root.action = root.mouseButton === Qt.RightButton ? RegionSelection.SnipAction.Edit : RegionSelection.SnipAction.Copy;
-        }
-        
         const screenshotDir = Config.options.screenSnip.savePath !== "" ? //
             Config.options.screenSnip.savePath : "";
         var screenshotAction = root.getScreenshotAction();
+        if (screenshotAction === undefined || screenshotAction === null) return; // Copy = 0, so a falsy check would break the default action
         const command = ScreenshotAction.getCommand(
-            root.regionX * root.monitorScale, //
-            root.regionY * root.monitorScale, //
-            root.regionWidth * root.monitorScale,// 
-            root.regionHeight * root.monitorScale, //
+            root.selX * root.monitorScale, //
+            root.selY * root.monitorScale, //
+            root.selW * root.monitorScale,// 
+            root.selH * root.monitorScale, //
             root.screenshotPath, //
             screenshotAction, //
             screenshotDir
         )
+        root.rememberSelection();
         Quickshell.execDetached(command);
         if (root.action == RegionSelection.SnipAction.Record || root.action == RegionSelection.SnipAction.RecordWithSound) {
             root.phase = RegionSelection.Phase.Post
@@ -297,10 +476,11 @@ PanelWindow {
         }
     }
 
-    // Only clickable in Selection phase
+    // Only clickable in Selection & Adjust phases
     mask: Region {
         item: switch(root.phase) {
             case RegionSelection.Phase.Select: return mouseArea;
+            case RegionSelection.Phase.Adjust: return mouseArea;
             case RegionSelection.Phase.Post: return null;
         }
     }
@@ -309,12 +489,20 @@ PanelWindow {
         anchors.fill: parent
         live: false
         captureSource: root.screen
-        visible: root.phase === RegionSelection.Phase.Select
+        visible: root.phase !== RegionSelection.Phase.Post
+    }
 
-        focus: root.visible
-        Keys.onPressed: (event) => { // Esc to close
+    // Stable keyboard focus owner: Esc = cancel, Enter = capture (adjust phase)
+    Item {
+        id: keyHandler
+        focus: true
+        Keys.onPressed: (event) => {
             if (event.key === Qt.Key_Escape) {
                 root.dismiss();
+            } else if ((event.key === Qt.Key_Return || event.key === Qt.Key_Enter)
+                && root.phase === RegionSelection.Phase.Adjust
+                && GlobalStates.regionSelectorActiveScreen === root.screen.name) {
+                root.snip();
             }
         }
     }
@@ -322,12 +510,30 @@ PanelWindow {
     MouseArea {
         id: mouseArea
         anchors.fill: parent
-        cursorShape: Qt.CrossCursor
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         hoverEnabled: true
+        cursorShape: {
+            if (root.phase !== RegionSelection.Phase.Adjust) return Qt.CrossCursor;
+            const zone = (root.adjustMode === "move") ? "move" : //
+                (root.adjustMode === "" ? root.hoverZone : root.resizeZone);
+            switch (zone) {
+                case "nw": case "se": return Qt.SizeFDiagCursor;
+                case "ne": case "sw": return Qt.SizeBDiagCursor;
+                case "n": case "s": return Qt.SizeVerCursor;
+                case "w": case "e": return Qt.SizeHorCursor;
+                case "move": return Qt.SizeAllCursor;
+                default: return Qt.CrossCursor;
+            }
+        }
 
         // Controls
         onPressed: (mouse) => {
+            GlobalStates.regionSelectorActiveScreen = root.screen.name;
+            if (root.phase === RegionSelection.Phase.Adjust) {
+                if (mouse.button !== Qt.LeftButton) return;
+                root.adjustPressed(mouse.x, mouse.y);
+                return;
+            }
             root.dragStartX = mouse.x;
             root.dragStartY = mouse.y;
             root.draggingX = mouse.x;
@@ -336,6 +542,10 @@ PanelWindow {
             root.mouseButton = mouse.button;
         }
         onReleased: (mouse) => {
+            if (root.phase === RegionSelection.Phase.Adjust) {
+                root.adjustReleased(mouse.x, mouse.y);
+                return;
+            }
             // Detect if it was a click -> Try to select targeted region
             if (root.draggingX === root.dragStartX && root.draggingY === root.dragStartY) {
                 if (root.targetedRegionValid()) {
@@ -350,18 +560,26 @@ PanelWindow {
                 const minX = Math.min(...dragPoints.map(p => p.x));
                 const maxY = Math.max(...dragPoints.map(p => p.y));
                 const minY = Math.min(...dragPoints.map(p => p.y));
-                root.regionX = minX - padding;
-                root.regionY = minY - padding;
-                root.regionWidth = maxX - minX + padding * 2;
-                root.regionHeight = maxY - minY + padding * 2;
+                root.selX = minX - padding;
+                root.selY = minY - padding;
+                root.selW = maxX - minX + padding * 2;
+                root.selH = maxY - minY + padding * 2;
             }
-            root.snip();
+            root.finishSelection();
         }
         onPositionChanged: (mouse) => {
+            if (root.phase === RegionSelection.Phase.Adjust) {
+                root.adjustMoved(mouse.x, mouse.y);
+                return;
+            }
             root.updateTargetedRegion(mouse.x, mouse.y);
             if (!root.dragging) return;
             root.draggingX = mouse.x;
             root.draggingY = mouse.y;
+            root.selX = Math.min(root.dragStartX, mouse.x);
+            root.selY = Math.min(root.dragStartY, mouse.y);
+            root.selW = Math.abs(mouse.x - root.dragStartX);
+            root.selH = Math.abs(mouse.y - root.dragStartY);
             root.dragDiffX = mouse.x - root.dragStartX;
             root.dragDiffY = mouse.y - root.dragStartY;
             root.points.push({ x: mouse.x, y: mouse.y });
@@ -372,10 +590,10 @@ PanelWindow {
             anchors.fill: parent
             active: root.selectionMode === RegionSelection.SelectionMode.RectCorners
             sourceComponent: RectCornersSelectionDetails {
-                regionX: root.regionX
-                regionY: root.regionY
-                regionWidth: root.regionWidth
-                regionHeight: root.regionHeight
+                regionX: root.selX
+                regionY: root.selY
+                regionWidth: root.selW
+                regionHeight: root.selH
                 mouseX: mouseArea.mouseX
                 mouseY: mouseArea.mouseY
                 color: root.selectionBorderColor
@@ -395,12 +613,52 @@ PanelWindow {
             }
         }
 
+        // Resize handles (adjust phase)
+        Item {
+            z: 6
+            visible: root.phase === RegionSelection.Phase.Adjust
+            x: root.selX
+            y: root.selY
+            width: root.selW
+            height: root.selH
+
+            Repeater {
+                model: [
+                    { "xr": 0, "yr": 0 },
+                    { "xr": 0.5, "yr": 0, "stretch": "h" },
+                    { "xr": 1, "yr": 0 },
+                    { "xr": 1, "yr": 0.5, "stretch": "v" },
+                    { "xr": 1, "yr": 1 },
+                    { "xr": 0.5, "yr": 1, "stretch": "h" },
+                    { "xr": 0, "yr": 1 },
+                    { "xr": 0, "yr": 0.5, "stretch": "v" }
+                ]
+                delegate: Rectangle {
+                    required property var modelData
+                    readonly property bool corner: modelData.stretch === undefined
+                    readonly property int cornerSize: 10
+                    radius: corner ? 2 : 1
+                    color: root.brightText
+                    border.width: 1
+                    border.color: root.onBorderColor
+                    width: corner ? cornerSize : (modelData.stretch === "h"
+                        ? Math.max(6, Math.min(parent.width - cornerSize * 2, 28))
+                        : 4)
+                    height: corner ? cornerSize : (modelData.stretch === "v"
+                        ? Math.max(6, Math.min(parent.height - cornerSize * 2, 28))
+                        : 4)
+                    x: Math.round(modelData.xr * parent.width - width / 2)
+                    y: Math.round(modelData.yr * parent.height - height / 2)
+                }
+            }
+        }
+
         // The thing to the bottom-right with an icon
         CursorGuide {
             z: 9999
             visible: root.phase === RegionSelection.Phase.Select
-            x: root.dragging ? root.regionX + root.regionWidth : mouseArea.mouseX
-            y: root.dragging ? root.regionY + root.regionHeight : mouseArea.mouseY
+            x: root.dragging ? root.selX + root.selW : mouseArea.mouseX
+            y: root.dragging ? root.selY + root.selH : mouseArea.mouseY
             action: root.action
             selectionMode: root.selectionMode
         }
@@ -496,7 +754,7 @@ PanelWindow {
         Row {
             id: regionSelectionControls
             z: 10
-            visible: root.phase === RegionSelection.Phase.Select
+            visible: root.phase === RegionSelection.Phase.Select || root.phase === RegionSelection.Phase.Adjust
             anchors {
                 horizontalCenter: parent.horizontalCenter
                 bottom: parent.bottom
@@ -527,6 +785,18 @@ PanelWindow {
                     property alias source: root.selectionMode
                 }
                 onDismiss: root.dismiss();
+            }
+            ToolbarPairedFab {
+                anchors.verticalCenter: parent.verticalCenter
+                iconText: "check"
+                visible: root.phase === RegionSelection.Phase.Adjust
+                onClicked: {
+                    GlobalStates.regionSelectorActiveScreen = root.screen.name;
+                    root.snip();
+                }
+                StyledToolTip {
+                    text: Translation.tr("Capture")
+                }
             }
             ToolbarPairedFab {
                 anchors.verticalCenter: parent.verticalCenter

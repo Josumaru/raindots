@@ -14,6 +14,7 @@ Item {
     required property color overlayColor
     property bool showAimLines: Config.options.regionSelector.rect.showAimLines
 
+    // Post phase (recording preview): breathing dashed border, no overlay
     property bool breathingBorderOnly: false
 
     // Overlay to darken screen
@@ -35,9 +36,26 @@ Item {
         border.width: Math.max(root.width, root.height)
     }
 
+    Rectangle { // Solid selection border
+        z: 9
+        visible: !root.breathingBorderOnly
+        anchors {
+            left: parent.left
+            top: parent.top
+            leftMargin: Math.round(root.regionX) - border.width / 2
+            topMargin: Math.round(root.regionY) - border.width / 2
+        }
+        width: Math.round(root.regionWidth) + border.width
+        height: Math.round(root.regionHeight) + border.width
+        color: "transparent"
+        border.color: root.color
+        border.width: 2
+    }
+
     DashedBorder {
         id: selectionBorder
         z: 9
+        visible: root.breathingBorderOnly
         anchors {
             left: parent.left
             top: parent.top
@@ -66,9 +84,10 @@ Item {
         z: 2
         visible: !root.breathingBorderOnly
         anchors {
-            top: selectionBorder.bottom
-            right: selectionBorder.right
-            margins: 8
+            top: parent.top
+            topMargin: Math.round(root.regionY) + Math.round(root.regionHeight) + 8
+            right: parent.right
+            rightMargin: parent.width - Math.round(root.regionX) - Math.round(root.regionWidth) - 8
         }
         color: root.color
         text: `${Math.round(root.regionWidth)} x ${Math.round(root.regionHeight)}`

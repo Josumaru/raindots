@@ -54,7 +54,9 @@ Singleton {
                     saveFileName="Screenshot From $(date '+%Y-%m-%d %H-%M-%S').png" && \
                     savePath="${saveDir}/$saveFileName" && \
                     ${cropToStdout} | tee >(wl-copy) > "$savePath" && \
-                    ${cleanup}`
+                    ${cleanup} && \
+                    response=$(notify-send '${StringUtils.shellSingleQuoteEscape(Translation.tr("Screenshot saved"))}' "$savePath" -a 'Shell' -i "$savePath" -A 'default=Open'); \
+                    [ "$response" = "default" ] && xdg-open "$savePath"`
                 ]
 
                 break;

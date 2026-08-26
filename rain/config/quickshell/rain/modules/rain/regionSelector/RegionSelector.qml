@@ -10,6 +10,7 @@ Scope {
     id: root
 
     function dismiss() {
+        GlobalStates.regionSelectorActiveScreen = ""
         GlobalStates.regionSelectorOpen = false
     }
 
