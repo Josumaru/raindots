@@ -23,7 +23,7 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("hyprctl setcursor Bibata-Modern-Classic 24")
 
     -- User apps
-    hl.exec_cmd("/opt/Discord/discord")
+    hl.exec_cmd("discord")
     hl.exec_cmd("vicinae server")
     hl.exec_cmd("~/Documents/app/evershot")
     hl.exec_cmd("~/.local/share/mise/installs/node/24.13.0/bin/9router")

@@ -356,6 +356,19 @@ Item { // Bar content region
                         size: Appearance.font.pixelSize.small
                         tint: rightSidebarButton.colText
                     }
+                    Revealer {
+                        reveal: Network.vpnEnabled
+                        Layout.fillHeight: true
+                        Layout.leftMargin: reveal ? indicatorsRowLayout.realSpacing : 0
+                        Behavior on Layout.leftMargin {
+                            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                        }
+                        Icon {
+                            name: Network.vpnSymbol
+                            size: Appearance.font.pixelSize.small
+                            tint: rightSidebarButton.colText
+                        }
+                    }
                     Icon {
                         Layout.leftMargin: indicatorsRowLayout.realSpacing
                         visible: BluetoothStatus.enabled

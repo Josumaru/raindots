@@ -34,6 +34,9 @@ Singleton {
 
     property string networkName: ""
     property int networkStrength
+    property bool vpnEnabled: false
+    property string vpnName: ""
+    readonly property string vpnSymbol: "shield"
     property string materialSymbol: root.ethernet
         ? "lan"
         : (root.wifiEnabled && root.wifiStatus === "connected")
@@ -154,6 +157,7 @@ Singleton {
         wifiStatusProcess.running = true
         updateNetworkName.running = true;
         updateNetworkStrength.running = true;
+        updateVpnStatus.running = true;
     }
 
     Process {
@@ -318,6 +322,29 @@ Singleton {
                 }
             }
         }
+    }
+
+    Process {
+        id: updateVpnStatus
+        command: ["sh", "-c", "nmcli -t -f NAME,TYPE connection show --active | grep -E ':vpn$|:tun$' || true"]
+        running: true
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const match = text.trim().split("\n")[0]?.split(":")[0] ?? "";
+                root.vpnName = match;
+            }
+        }
+        onExited: (exitCode, exitStatus) => {
+            root.vpnEnabled = root.vpnName.length > 0;
+        }
+    }
+
+    Timer {
+        id: vpnPollTimer
+        interval: 5000
+        repeat: true
+        running: true
+        onTriggered: updateVpnStatus.running = true
     }
 
     Component {

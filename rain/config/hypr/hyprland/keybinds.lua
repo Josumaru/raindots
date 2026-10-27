@@ -47,7 +47,7 @@ hl.bind("CTRL + SUPER + W", hl.dsp.exec_cmd(rainBin .. " ipc wallpaperPicker tog
     { description = "Shell: Wallpaper picker" })
 hl.bind("CTRL + SUPER + SHIFT + D", hl.dsp.exec_cmd(rainBin .. " ipc toggleLightDark toggle"),
     { description = "Shell: Toggle light/dark mode" })
-hl.bind("CTRL + SUPER + R", hl.dsp.exec_cmd(rainBin .. " shell kill; " .. rainBin .. " shell &"),
+hl.bind("CTRL + SUPER + R", hl.dsp.exec_cmd(rainBin .. " shell kill; sleep 1; " .. rainBin .. " shell &"),
     { description = "Shell: Restart widgets" })
 
 --##! Utilities
@@ -280,7 +280,7 @@ for i = 1, 4 do
 end
 --#/# bind = SUPER, Scroll ↑/↓,, -- Focus left/right
 for i = 1, 4 do
-    local key = { "SUPER + mouse_up", "SUPER + mouse_down" }
+    local key = { "SUPER + mouse_down", "SUPER + mouse_up" }
     local keycombos = { key[1], key[2], "CTRL + " .. key[1], "CTRL + " .. key[2] }
     local prefix = { "+", "-", "r+", "r-" }
     hl.bind(keycombos[i], hl.dsp.focus({ workspace = prefix[i] .. "1" }))
